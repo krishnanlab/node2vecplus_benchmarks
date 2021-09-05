@@ -1,0 +1,28 @@
+#!/bin/bash --login
+
+#SBATCH -t 30:00:00
+#SBATCH -N 1
+#SBATCH -c 4
+#SBATCH --mem=4GB
+#SBATCH --array=0-111  # 14 networks, 8 q settings
+#SBATCH -o ../slurm_history/%A-%a.out
+
+cd $SLURM_SUBMIT_DIR
+
+networks=(K3L2 K3L2c1 K3L2c2 K3L2c3 K3L2c4 K3L2c45 K3L2s01 K3L2s05 K3L2s1 K3L2s3 K3L2s5 K3L3 K5L1 K5L2)
+qs=(0.01 0.05 0.1 0.5 1 5 10 100)
+
+ID=$SLURM_ARRAY_TASK_ID
+network=${networks[$(expr $ID % 14)]}
+q=${qs[$(expr $ID / 14)]}
+
+if [ $ID == 0 ]; then 
+    # submit job for combining all results after all evaluation jobs are finished
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID eval_hcluster_combine.sb
+fi
+
+cd ../script
+conda activate node2vecplus-bench
+time python eval_hcluster.py --network $network --q $q
+time python eval_hcluster.py --network $network --q $q --extend
+

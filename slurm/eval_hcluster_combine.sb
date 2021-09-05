@@ -1,0 +1,19 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH --mem=1GB
+#SBATCH -t 10:00
+
+cd $SLURM_SUBMIT_DIR
+cd ../result
+
+echo "Training score,Testing score,Task,Network,Method,q" > hierarchical_cluster.csv
+
+for i in $(ls hierarchical_cluster/K*.csv); do
+    echo Appending file $i
+    cat $i >> hierarchical_cluster.csv
+done
+
+rm -rf hierarchical_cluster/
+
