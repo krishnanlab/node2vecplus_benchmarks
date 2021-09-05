@@ -134,12 +134,17 @@ def evaluate(args):
         result_df_list[-1]['Testing score'] = test_score_list        
         result_df_list[-1]['Task'] = TASK_LIST
 
-    # save or print results
+    # combine results into a single dataframe
     result_df = pd.concat(result_df_list).sort_values('Task')
+    result_df['Network'] = network
+    result_df['Method'] = 'Node2vec+' if extend else 'Node2vec'
+    result_df['q'] = q
+
+    # save or print results
     if nooutput:
         print(result_df)
     else:
-        result_df.to_csv(output_fp, index=False)
+        result_df.to_csv(output_fp, index=False, header=False)
 
 
 def main():
