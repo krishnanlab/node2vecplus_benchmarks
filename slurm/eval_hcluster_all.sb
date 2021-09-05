@@ -5,7 +5,7 @@
 #SBATCH -c 4
 #SBATCH --mem=4GB
 #SBATCH --array=0-111  # 14 networks, 8 q settings
-#SBATCH -o ../slurm_history/%A-%a.out
+#SBATCH -o ../slurm_history/slurm-%A-%a.out
 
 cd $SLURM_SUBMIT_DIR
 

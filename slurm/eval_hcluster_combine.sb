@@ -4,6 +4,7 @@
 #SBATCH -c 1
 #SBATCH --mem=1GB
 #SBATCH -t 10:00
+#SBATCH -o ../slurm_history/slurm-%A.out
 
 cd $SLURM_SUBMIT_DIR
 cd ../result
