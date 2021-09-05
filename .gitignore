@@ -7,3 +7,6 @@ data/networks/ppi/
 # ignore jupyter notebook checkpoints
 .ipynb_checkpoints/
 
+# ignore slurm histories
+slurm_history/
+
