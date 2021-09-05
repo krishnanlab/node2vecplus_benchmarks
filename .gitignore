@@ -1,2 +1,9 @@
+# ignore pecanpy dev scripts
 pecanpy/
+
+# ignore large network data
 data/networks/ppi/
+
+# ignore jupyter notebook checkpoints
+.ipynb_checkpoints/
+
