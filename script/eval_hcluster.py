@@ -106,6 +106,7 @@ def _evaluate(X_emd, label_fp, random_state):
 
 def evaluate(args):
     network = args.network
+    network_name = network.split('s')[0].split('c')[0]
     extend = args.extend
     q = args.q
     random_state = args.random_state
@@ -121,7 +122,7 @@ def evaluate(args):
 
         train_score_list, test_score_list = [], []
         for task in TASK_LIST:
-            label_fp = f"{LABEL_DIR}/{network}_{task}_labels.txt"
+            label_fp = f"{LABEL_DIR}/{network_name}_{task}_labels.txt"
             train_score, test_score = _evaluate(X_emd, label_fp, random_state)
 
             train_score_list.append(train_score)
