@@ -4,7 +4,8 @@ import argparse
 import numpy as np
 import pandas as pd
 import numba
-numba.set_num_threads(1)
+NUM_THREADS = 4
+numba.set_num_threads(NUM_THREADS)
 
 from pecanpy import node2vec
 from gensim.models import Word2Vec
@@ -67,13 +68,13 @@ def parse_args():
 def _embed(network_fp, extend, q):
     # initialize DenseOTF graph
     adj_mat, IDs = np.load(network_fp).values()
-    g = node2vec.DenseOTF(p=HPARAM_P, q=q, workers=1, verbose=False, extend=extend)
+    g = node2vec.DenseOTF(p=HPARAM_P, q=q, workers=NUM_THREADS, verbose=False, extend=extend)
     g.from_mat(adj_mat, IDs)
 
     # simulate random walks and genearte embedings
     walks = g.simulate_walks(num_walks=HPARAM_NUMWALKS, walk_length=HPARAM_WALKLENGTH)
     w2v = Word2Vec(walks, vector_size=HPARAM_DIM, window=HPARAM_WINDOW,
-                   min_count=0, sg=1, workers=1, epochs=HPARAM_EPOCHS)
+                   min_count=0, sg=1, workers=NUM_THREADS, epochs=HPARAM_EPOCHS)
 
     # sort embeddings by IDs
     idx_ary = np.array(w2v.wv.index_to_key, dtype=int).argsort()
