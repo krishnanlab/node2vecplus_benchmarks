@@ -119,7 +119,6 @@ def _evaluate(X_emd, label_fp, random_state):
 
 def evaluate(args):
     network = args.network
-    network_name = network.split('-c')[0]
     extend = args.extend
     p = args.p
     q = args.q
@@ -141,7 +140,7 @@ def evaluate(args):
     t = time()
     result_df_list = []
     for dataset in DATASET_LIST:
-        label_fp = f"{LABEL_DIR}/{network_name}_{dataset}_label_split.npz"
+        label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
         df = _evaluate(X_emd, label_fp, random_state)
         df['Dataset'], df['Network'], df['Method'] = dataset, network, method
