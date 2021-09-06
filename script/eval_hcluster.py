@@ -144,7 +144,7 @@ def evaluate(args):
     if nooutput:
         print(result_df)
     else:
-        result_df.to_csv(output_fp, index=False, header=False)
+        result_df.to_csv(output_fp, index=False)
 
 
 def main():
