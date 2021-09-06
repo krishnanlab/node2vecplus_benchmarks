@@ -5,7 +5,7 @@ from time import time
 import numpy as np
 import pandas as pd
 import numba
-NUM_THREADS = 128
+NUM_THREADS = 4
 numba.set_num_threads(NUM_THREADS)
 
 from pecanpy import node2vec
@@ -157,7 +157,7 @@ def evaluate(args):
     if nooutput:
         print(result_df)
     else:
-        result_df.to_csv(output_fp, index=False, header=False)
+        result_df.to_csv(output_fp, index=False)
 
 
 def main():

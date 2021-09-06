@@ -18,7 +18,7 @@ q=${qs[$(expr $ID / 14)]}
 
 if [ $ID == 0 ]; then 
     # submit job for combining all results after all evaluation jobs are finished
-    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID eval_hcluster_combine.sb
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID combine_results.sb hierarchical_cluster
 fi
 
 cd ../script
