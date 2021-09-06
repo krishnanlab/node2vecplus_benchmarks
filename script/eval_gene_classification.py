@@ -119,7 +119,7 @@ def _evaluate(X_emd, label_fp, random_state):
 
 def evaluate(args):
     network = args.network
-    network_name = network.split('s')[0].split('c')[0]
+    network_name = network.split('-c')[0]
     extend = args.extend
     p = args.p
     q = args.q
