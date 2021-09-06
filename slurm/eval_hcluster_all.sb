@@ -1,16 +1,16 @@
 #!/bin/bash --login
 
-#SBATCH -t 30:00:00
+#SBATCH -t 30:00
 #SBATCH -N 1
 #SBATCH -c 4
 #SBATCH --mem=4GB
-#SBATCH --array=0-111  # 14 networks, 8 q settings
+#SBATCH --array=0-125  # 14 networks, 9 q settings
 #SBATCH -o ../slurm_history/slurm-%A-%a.out
 
 cd $SLURM_SUBMIT_DIR
 
 networks=(K3L2 K3L2c1 K3L2c2 K3L2c3 K3L2c4 K3L2c45 K3L2s01 K3L2s05 K3L2s1 K3L2s3 K3L2s5 K3L3 K5L1 K5L2)
-qs=(0.01 0.05 0.1 0.5 1 5 10 100)
+qs=(0.01 0.05 0.1 0.5 1 5 10 50 100)
 
 ID=$SLURM_ARRAY_TASK_ID
 network=${networks[$(expr $ID % 14)]}
