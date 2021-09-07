@@ -14,15 +14,7 @@ OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-# check if output directory exist and create it not
-try:
-    os.makedirs(RESULT_DIR)
-except FileExistsError:
-    pass
-try:
-    os.makedirs(OUTPUT_DIR)
-except FileExistsError:
-    pass
+check_dirs([RESULT_DIR, OUTPUT_DIR])
 
 DATASET_LIST = ['GOBP', 'KEGGBP', 'DisGeNet']
 

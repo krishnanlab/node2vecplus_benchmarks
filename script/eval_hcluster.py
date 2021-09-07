@@ -3,29 +3,19 @@ import argparse
 
 import numpy as np
 import pandas as pd
-import numba
-NUM_THREADS = 4
-numba.set_num_threads(NUM_THREADS)
-
-from pecanpy import node2vec
-from gensim.models import Word2Vec
 
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import StratifiedShuffleSplit
 from sklearn.metrics import f1_score
 
+from util import *
 
-DATA_DIR = "../data"
-RESULT_DIR = "../result"
+
 OUTPUT_DIR = f"{RESULT_DIR}/hierarchical_cluster"
 NETWORK_DIR = f"{DATA_DIR}/networks/synthetic"
 LABEL_DIR = f"{DATA_DIR}/labels/hierarchical_cluster"
 
-# check if output directory exist and create it not
-if not os.path.isdir(RESULT_DIR):
-    os.makedirs(RESULT_DIR)
-if not os.path.isdir(OUTPUT_DIR):
-    os.makedirs(OUTPUT_DIR)
+check_dirs([RESULT_DIR, OUTPUT_DIR])
 
 TASK_LIST = ['cluster', 'level']
 REPETITION = 10
@@ -33,10 +23,6 @@ REPETITION = 10
 ###DEFAULT HYPER PARAMS###
 HPARAM_P = 1
 HPARAM_DIM = 16
-HPARAM_NUMWALKS = 10
-HPARAM_WALKLENGTH = 80
-HPARAM_WINDOW = 10
-HPARAM_EPOCHS = 1
 ##########################
 
 
@@ -63,24 +49,6 @@ def parse_args():
     print(args)
 
     return args
-
-
-def _embed(network_fp, extend, q):
-    # initialize DenseOTF graph
-    adj_mat, IDs = np.load(network_fp).values()
-    g = node2vec.DenseOTF(p=HPARAM_P, q=q, workers=NUM_THREADS, verbose=False, extend=extend)
-    g.from_mat(adj_mat, IDs)
-
-    # simulate random walks and genearte embedings
-    walks = g.simulate_walks(num_walks=HPARAM_NUMWALKS, walk_length=HPARAM_WALKLENGTH)
-    w2v = Word2Vec(walks, vector_size=HPARAM_DIM, window=HPARAM_WINDOW,
-                   min_count=0, sg=1, workers=NUM_THREADS, epochs=HPARAM_EPOCHS)
-
-    # sort embeddings by IDs
-    idx_ary = np.array(w2v.wv.index_to_key, dtype=int).argsort()
-    X_emd = w2v.wv.vectors[idx_ary]
-
-    return X_emd
 
 
 def _evaluate(X_emd, label_fp, random_state):
@@ -119,7 +87,7 @@ def evaluate(args):
     # run evaluation with repetitions on both tasks
     result_df_list = []
     for _ in range(REPETITION):
-        X_emd = _embed(network_fp, extend, q)
+        X_emd, _ = embed(network_fp, HPARAM_DIM, extend, HPARAM_P, q)
 
         train_score_list, test_score_list = [], []
         for task in TASK_LIST:

@@ -1,3 +1,5 @@
+import os
+
 import numpy as np
 import numba
 from sklearn.metrics import average_precision_score
@@ -7,6 +9,15 @@ from gensim.models import Word2Vec
 
 from common_var import *
 numba.set_num_threads(NUM_THREADS)
+
+
+def check_dirs(dirs):
+    """Check directory and create if not exist"""
+    for directory in dirs:
+        try: 
+            os.makedirs(directory)
+        except FileExistsError:
+            pass
 
 
 def score_func(y_true, y_pred):

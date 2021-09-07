@@ -16,15 +16,7 @@ OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_gnn"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-# create output directory if not exist
-try:
-    os.makedirs(RESULT_DIR)
-except FileExistsError:
-    pass
-try:
-    os.makedirs(OUTPUT_DIR)
-except FileExistsError:
-    pass
+check_dirs([RESULT_DIR, OUTPUT_DIR])
 
 ####DEFAULT PARAMETERS####
 EVAL_STEPS = 1000
