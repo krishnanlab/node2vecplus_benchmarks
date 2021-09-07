@@ -10,3 +10,5 @@ data/networks/ppi/
 # ignore slurm histories
 slurm_history/
 
+# ignore pycache
+__pycache__/

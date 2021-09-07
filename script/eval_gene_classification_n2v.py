@@ -14,6 +14,8 @@ from gensim.models import Word2Vec
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import average_precision_score
 
+from util import *
+
 
 DATA_DIR = "../data"
 RESULT_DIR = "../result"
@@ -82,18 +84,13 @@ def _embed(network_fp, extend, p, q):
     idx_ary = [IDmap[i] for i in IDs]
     X_emd = w2v.wv.vectors[idx_ary]
 
-    return X_emd
+    return X_emd, IDs
 
 
-def _score_func(y_true, y_pred):
-    prior = y_true.sum() / y_true.size
-    auprc = average_precision_score(y_true, y_pred)
-    return np.log2(auprc / prior)
-
-
-def _evaluate(X_emd, label_fp, random_state):
+def _evaluate(X_emd, IDs, label_fp, random_state):
     # load labels and study-bias holdout splits
-    y, train_idx, valid_idx, test_idx, label_ids, _ = np.load(label_fp).values()
+    y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
+    align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
     n_tasks = label_ids.size
 
     # initialize classifiaction model and split generator
@@ -104,9 +101,9 @@ def _evaluate(X_emd, label_fp, random_state):
         mdl = LogisticRegression(penalty='l2', solver='liblinear', max_iter=500)
         mdl.fit(X_emd[train_idx], y[train_idx, task_idx])
 
-        train_score_list.append(_score_func(y[train_idx, task_idx], mdl.decision_function(X_emd[train_idx])))
-        valid_score_list.append(_score_func(y[valid_idx, task_idx], mdl.decision_function(X_emd[valid_idx])))
-        test_score_list.append(_score_func(y[test_idx, task_idx], mdl.decision_function(X_emd[test_idx])))
+        train_score_list.append(score_func(y[train_idx, task_idx], mdl.decision_function(X_emd[train_idx])))
+        valid_score_list.append(score_func(y[valid_idx, task_idx], mdl.decision_function(X_emd[valid_idx])))
+        test_score_list.append(score_func(y[test_idx, task_idx], mdl.decision_function(X_emd[test_idx])))
 
     df = pd.DataFrame()
     df['Training score'] = train_score_list
@@ -132,7 +129,7 @@ def evaluate(args):
 
     # generate embeddings and report time usage
     t = time()
-    X_emd = _embed(network_fp, extend, p, q)
+    X_emd, IDs = _embed(network_fp, extend, p, q)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to generate embeddings using {method}")
 
@@ -142,7 +139,7 @@ def evaluate(args):
     for dataset in DATASET_LIST:
         label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
-        df = _evaluate(X_emd, label_fp, random_state)
+        df = _evaluate(X_emd, IDs, label_fp, random_state)
         df['Dataset'], df['Network'], df['Method'] = dataset, network, method
         df['p'], df['q'], df['pq'] = p, q, pq
         result_df_list.append(df)
