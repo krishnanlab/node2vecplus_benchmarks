@@ -26,12 +26,12 @@ tar -xzf "Supervised-learning is an accurate method for network-based gene class
 echo Moving GIANT-TN-c01
 mv networks/GIANT-TN.edg ./GIANT-TN-c01.edg
 echo Converting GIANT-TN-c01 to dense format
-pecanpy --input GIANT-TN-c01.edg --output GIANT-TN-c01.npz --task todense
+pecanpy --input GIANT-TN-c01.edg --weighted --output GIANT-TN-c01.npz --task todense
 
 echo Moving STRING
 mv networks/STRING.edg .
 echo Converting STRING to dense format
-pecanpy --input STRING.edg --output STRING.npz --task todense
+pecanpy --input STRING.edg --weighted --output STRING.npz --task todense
 
 rm -rf "Supervised-learning is an accurate method for network-based gene classification - Data.tar.gz" LICENSE.txt embeddings/ networks/ labels/
 
@@ -42,7 +42,7 @@ gzip -d all_tissues.gz
 echo Modifying edgelist by removing unwanted node class labels...
 awk '{if (NF == 3) print $1"\t"$2"\t"$3; else print $1"\t"$2"\t"$4}' all_tissues > GIANT-TN.edg
 echo Converting GIANT-TN to dense format
-pecanpy --input GIANT-TN.edg --output GIANT-TN.npz --task todense
+pecanpy --input GIANT-TN.edg --weighted --output GIANT-TN.npz --task todense
 
 rm -rf all_tissues
 
