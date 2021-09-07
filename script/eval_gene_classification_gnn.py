@@ -3,7 +3,6 @@ import argparse
 
 import numpy as np
 import pandas as pd
-from sklearn.metrics import average_precision_score
 
 import torch
 import torch.nn.functional as F
@@ -13,8 +12,6 @@ from torch_geometric.data import Data
 from util import *
 
 
-DATA_DIR = "../data"
-RESULT_DIR = "../result"
 OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_gnn"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
