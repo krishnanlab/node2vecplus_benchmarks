@@ -136,61 +136,89 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     test_idx[:] = aligned_idx[test_idx]
 
 
-def main():
-    parser = argparse.ArgumentParser(description="GNN")
-    parser.add_argument('--network', required=True)
-    parser.add_argument('--dataset', required=True)
-    parser.add_argument('--device', type=int, default=0)
-    parser.add_argument('--nooutput', action='store_true')
-    parser.add_argument('--use_sage', action='store_true')
+def parse_args():
+    parser = argparse.ArgumentParser(
+        description="Run evaluation for gene classification using GNN")
+
+    parser.add_argument('--network', required=True,
+        help="Name of the protein protein interaction network")
+
+    parser.add_argument('--dataset', required=True,
+        help="Name of geneset collection")
+
+    parser.add_argument('--device', type=int, default=0,
+        help="Device number indicating which GPU to use, default is 0")
+
+    parser.add_argument('--nooutput', action='store_true',
+        help="Disable output if specified, and print results to screen")
+
+    parser.add_argument('--use_sage', action='store_true',
+        help="Use GraphSAGE instead of GCN, defulat is using GCN")
+
     args = parser.parse_args()
     print(args)
 
+    return args
+
+
+def load_data(network, dataset, use_sage, device):
+    # load network
+    network_fp = f"{NETWORK_DIR}/{network}.npz"
+    adj_mat, adj_ids = np.load(network_fp).values()
+    adj = torch.tensor(adj_mat).float() # dense adj
+
+    # load labels with splits and align node ids
+    label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
+    y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
+    align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
+
+    # compute scaling factors for handeling data imbalance
+    tot_num = train_idx.size + valid_idx.size + test_idx.size
+    pos_weight = (tot_num - y.sum(axis=0)) / y.sum(axis=0)
+    pos_weight = torch.tensor(pos_weight).to(device)
+
+    # converting tor torch tensor
+    y = torch.tensor(y)
+    train_idx = torch.tensor(train_idx, dtype=torch.long).to(device)
+    valid_idx = torch.tensor(valid_idx, dtype=torch.long).to(device)
+    test_idx = torch.tensor(test_idx, dtype=torch.long).to(device)
+
+    # construct node features
+    if use_sage:
+        x = torch.reshape(torch.tensor(adj_mat.sum(axis=0)).float(), (adj_mat.shape[0], -1))
+    else:
+        x = torch.ones(adj_mat.shape[0], 1)
+    
+    return adj, x, y, train_idx, valid_idx, test_idx, label_ids, pos_weight
+
+
+def main(args):
     network = args.network
     dataset = args.dataset
     nooutput = args.nooutput
     device = args.device
     use_sage = args.use_sage
-
     device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
     method = 'sage' if use_sage else 'gcn'
 
-    network_fp = f"{NETWORK_DIR}/{network}.npz"
-    label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
-    output_fp = f"{OUTPUT_DIR}/{network}_{dataset}_{method}.csv"
-    
-    adj_mat, adj_ids = np.load(network_fp).values()
-    #y, train_idx, valid_idx, test_idx, label_ids, _ = np.load(label_fp).values()
-    y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
-    align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)
-
-    tot_num = train_idx.size + valid_idx.size + test_idx.size
-    pos_weight = (tot_num - y.sum(axis=0)) / y.sum(axis=0)
-
-    adj = torch.tensor(adj_mat).float() # dense adj
-    y = torch.tensor(y)
-    pos_weight = torch.tensor(pos_weight).to(device)
-    
-    if use_sage:  # GraphSAGE, use degree as feature
-        x = torch.reshape(torch.tensor(adj_mat.sum(axis=0)).float(), (adj_mat.shape[0], -1))
-        model = SAGE(x.shape[1], HPARAM_SAGE_DIM, y.shape[1], HPARAM_NUM_LAYERS).to(device)
-        lr = HPARAM_SAGE_LR
-    else:  # GCN, use constant feature
-        x = torch.ones(adj_mat.shape[0], 1)
-        model = GCN(x.shape[1], HPARAM_GCN_DIM, y.shape[1], HPARAM_NUM_LAYERS).to(device)
-        lr = HPARAM_GCN_LR
-    
+    # load and constructing data object
+    adj, x, y, train_idx, valid_idx, test_idx, label_ids, pos_weight = load_data(network, dataset, use_sage, device)
     data = Data(x=x, y=y)
     data.adj = adj
     data = data.to(device)
     
-    train_idx = torch.tensor(train_idx, dtype=torch.long).to(device)
-    valid_idx = torch.tensor(valid_idx, dtype=torch.long).to(device)
-    test_idx = torch.tensor(test_idx, dtype=torch.long).to(device)
+    # initialize model and optimizer
+    if use_sage:  # GraphSAGE, use degree as feature
+        model = SAGE(x.shape[1], HPARAM_SAGE_DIM, y.shape[1], HPARAM_NUM_LAYERS).to(device)
+        lr = HPARAM_SAGE_LR
+    else:  # GCN, use constant feature
+        model = GCN(x.shape[1], HPARAM_GCN_DIM, y.shape[1], HPARAM_NUM_LAYERS).to(device)
+        lr = HPARAM_GCN_LR
     
     model.reset_parameters()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
+    # train model
     for epoch in range(1, 1 + HPARAM_EPOCHS):
         loss = train(model, data, train_idx, optimizer, pos_weight)
 
@@ -213,9 +241,10 @@ def main():
     if nooutput:
         print(result_df)
     else:
-        result_df.to_csv(output_fp, index=False)
+        result_df.to_csv(f"{OUTPUT_DIR}/{network}_{dataset}_{method}.csv", index=False)
 
 
 if __name__ == "__main__":
-    main()
+    args = parse_args()
+    main(args)
 
