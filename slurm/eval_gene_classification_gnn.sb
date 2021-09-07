@@ -1,0 +1,38 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -t 12:00:00
+#SBATCH --mem=16GB
+#SBATCH --gres=gpu:v100:1
+#SBATCH --array=0-17  # 3 networks, 3 datasets, 2 gnns
+#SBATCH -o ../slurm_history/slurm-%A_%a.out
+
+cd $SLURM_SUBMIT_DIR
+
+networks=(STRING GIANT-TN GIANT-TN-c01)
+datasets=(GOBP KEGGBP DisGeNet)
+
+ID=$SLURM_ARRAY_TASK_ID
+network=${networks[$(expr $ID % 3)]}
+dataset=${datasets[$(expr $ID / 3 % 3)]}
+flag=$(expr $ID / 3 / 3)
+
+if [ $ID == 0 ]; then
+    # submit job for combining all results after all evaluation jobs are finished
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID combine_results.sb gene_classification_gnn
+fi
+
+cd ../script
+conda activate node2vecplus-bench
+
+echo "ID = ${ID}, network = ${network}, dataset = ${dataset}, flag = ${flag}"
+
+if [ $flag == 0 ]; then
+    # evaluate GCN
+    time python eval_gene_classification_gnn.py --network $network --dataset $dataset
+else
+    # evaluate GraphSAGE
+    time python eval_gene_classification_gnn.py --network $network --dataset $dataset --use_sage
+fi
+
