@@ -120,6 +120,22 @@ def test(model, data, train_idx, valid_idx, test_idx):
     return score_lst_lst
 
 
+def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
+    """Align label split IDs using network node IDs"""
+    # map from id to index in the label split
+    id_map = {j:i for i,j in enumerate(gene_ids)}
+
+    # index aligning label split ids to network node ids
+    aligned_idx = np.array([id_map[i] for i in adj_ids])
+
+    # apply alignment
+    y[:] = y[aligned_idx]
+    gene_ids[:] = gene_ids[aligned_idx]
+    train_idx[:] = aligned_idx[train_idx]
+    valid_idx[:] = aligned_idx[valid_idx]
+    test_idx[:] = aligned_idx[test_idx]
+
+
 def main():
     parser = argparse.ArgumentParser(description="GNN")
     parser.add_argument('--network', required=True)
@@ -143,8 +159,10 @@ def main():
     label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
     output_fp = f"{OUTPUT_DIR}/{network}_{dataset}_{method}.csv"
     
-    adj_mat = np.load(network_fp)['data']
-    y, train_idx, valid_idx, test_idx, label_ids, _ = np.load(label_fp).values()
+    adj_mat, adj_ids = np.load(network_fp).values()
+    #y, train_idx, valid_idx, test_idx, label_ids, _ = np.load(label_fp).values()
+    y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
+    align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)
 
     tot_num = train_idx.size + valid_idx.size + test_idx.size
     pos_weight = (tot_num - y.sum(axis=0)) / y.sum(axis=0)
