@@ -1,16 +1,36 @@
 # Node2vec+ Benchmarks
 
+This repository contains data and scripts for reproducing evaluation results presented in 
+[Accurately modeling biased random walks on weighted graphs using node2vec+](). 
+Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
+a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
+
+* [Setup environment](#setting-up-environment)
+* [Download PPIs](#downloading-ppis)
+* [Evaluate](#evaluate)
+
 # Quick start
 
-* setup environment
-* download PPIs
-* submit job scripts
+```bash
+cd script/init_setup
+
+# setup conda environment
+sh setup_env.sh
+
+# download ppis
+sh download_ppis.sh
+
+# submit evaluation jobs
+cd ../../slurm
+sh submit_all.sh
+```
+
+After all evaluation jobs are finished successfully, open the jupyter notebooks in `plot/` and generate evaluation plots. 
 
 # Setting up environment
 
-First, setup the conda environment `node2vecplus-bench`. 
+Requirements forthe conda environment `node2vecplus-bench`:
 
-Requirements:
 * [Python 3.8](https://www.python.org/downloads/release/python-3810/)
 * [Pandas](https://pandas.pydata.org/)
 * [scikit-learn](https://scikit-learn.org/)
@@ -71,7 +91,7 @@ module load CUDA/10
     * `GIANT-TN-c01` (25,689 nodes, 38,904,929 edges)
 
 The hierarchical cluster graphs are constructed by taking RBF of point coulds generated in the Euclidean space, 
-and it natually exhibits a hierarchical community structure (more info in the supplementary materials of the paper). 
+and hence each graph natually exhibits a hierarchical community structure (more info in the supplementary materials of the paper). 
 Each network is assocaited with two tasks, cluster classification and level classification.
 
 The BlogCatalog and Wikipedia networks, along with the associated node labels, are obtained from [SNAP-node2vec](https://snap.stanford.edu/node2vec/). 
@@ -92,4 +112,59 @@ cd script/init_setup
 sh download_ppis.sh
 ```
 
+The labels for gene classificaitons are available under `data/labels/gene_classification/`, 
+processed for each PPI network following [GenePlexus](https://academic.oup.com/bioinformatics/article/36/11/3457/5780279)
+* `KEGGBP`
+* `GOBP`
+* `DisGeNet`
+
+# Evaluation
+
+This repository contains the following scripts for reproducing the evaluation results
+
+* `eval_hcluster.py` - evaluate performnace of node2vec(+) using hierarchical cluster graphs
+* `eval_gene_classification_n2v.py` - evalute performance of node2vec(+) for gene classification tasks using PPI networks
+* `eval_gene_classification_gnn.py` - evaluate performance of GNNs for gene classification tasks using PPI networks
+
+Each one of the above scripts can be run from command line, e.g.
+
+```bash
+cd script
+
+# example of evaluating K3L2 hierarchical cluster graph using node2vec with q=10
+python evalu_hcluster.py --network K3L2 --q 10 --nooutput
+
+# sample as above but using node2vec+
+python evalu_hcluster.py --netwokr K3L2 --q 10 --nooutput --extend
+
+# check other commandline keyward options 
+python eval_hcluster.py --help
+```
+
+If `--nooutput` is not specified, then the evaluation results are saved to `result/` as `.csv`.
+
+## Submitting evaluation jobs
+
+Alternatively, one can submit evaluation jobs using
+
+```bash
+cd slurm
+
+# submit all evaluations on hierarchical cluster graphs
+sbatch eval_hcluster_all.sb
+
+# submit all evaluations for gene classifications using node2vec(+)
+sbatch eval_gene_classification_n2v.sb
+
+# submit all evaluations for gene classifications using GNNs
+sbatch eval_gene_classification_gnn.sb
+```
+
+Or submitting all evaluations above by simply running
+
+```bash
+sh evaluate_all.sh
+```
+
+Note: depending on the your preference you can modify the nodes requirement in `evaluate_all.sh` for individual jobs script.
 
