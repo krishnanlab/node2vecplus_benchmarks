@@ -2,6 +2,7 @@ import os
 import argparse
 
 import numpy as np
+import pandas as pd
 from sklearn.metrics import average_precision_score
 
 import torch
@@ -16,11 +17,15 @@ OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_gnn"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-# check if output directory exist and create it not
-if not os.path.isdir(RESULT_DIR):
+# create output directory if not exist
+try:
     os.makedirs(RESULT_DIR)
-if not os.path.isdir(OUTPUT_DIR):
+except FileExistsError:
+    pass
+try:
     os.makedirs(OUTPUT_DIR)
+except FileExistsError:
+    pass
 
 ####DEFAULT PARAMETERS####
 EVAL_STEPS = 1000
@@ -95,6 +100,7 @@ def train(model, data, train_idx, optimizer, pos_weight):
 
 
 def score_func(y_true, y_pred):
+    y_true, y_pred = np.array(y_true), np.array(y_pred)
     prior = y_true.sum() / y_true.size
     auprc = average_precision_score(y_true, y_pred)
     return np.log2(auprc / prior)
@@ -103,13 +109,12 @@ def score_func(y_true, y_pred):
 @torch.no_grad()
 def test(model, data, train_idx, valid_idx, test_idx):
     model.eval()
-    y_pred_all = model(data.x, data.adj)
+    y_pred = model(data.x, data.adj)
 
     score_lst_lst = []
     for idx in train_idx, valid_idx, test_idx:
-        y_true = data.y[idx,i].cpu()
-        y_pred = y_pred_all[idx,i].cpu()
-        score_lst = [score_func(y_true, y_pred) for i in range(data.y.shape[1])]
+        score_lst = [score_func(data.y[idx,i].cpu(), y_pred[idx,i].cpu())
+                     for i in range(data.y.shape[1])]
         score_lst_lst.append(score_lst)
 
     return score_lst_lst
@@ -120,7 +125,7 @@ def main():
     parser.add_argument('--network', required=True)
     parser.add_argument('--dataset', required=True)
     parser.add_argument('--device', type=int, default=0)
-    parser.add_argument('--nooutput', action='stor_true')
+    parser.add_argument('--nooutput', action='store_true')
     parser.add_argument('--use_sage', action='store_true')
     args = parser.parse_args()
     print(args)
@@ -143,7 +148,6 @@ def main():
 
     tot_num = train_idx.size + valid_idx.size + test_idx.size
     pos_weight = (tot_num - y.sum(axis=0)) / y.sum(axis=0)
-    print("pos_weight = ", pos_weight)
 
     adj = torch.tensor(adj_mat).float() # dense adj
     y = torch.tensor(y)
