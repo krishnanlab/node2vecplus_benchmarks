@@ -8,7 +8,12 @@ from pecanpy import node2vec
 from gensim.models import Word2Vec
 
 from common_var import *
-numba.set_num_threads(NUM_THREADS)
+
+
+try:
+    numba.set_num_threads(NUM_THREADS)
+except ValueError:
+    pass
 
 
 def check_dirs(dirs):
@@ -61,4 +66,20 @@ def embed(network_fp, dim, extend, p, q):
 
     return X_emd, IDs
 
+
+def embed_sparse(network_fp, dim, extend, p, q, weighted=True):
+    # initialize SparseOTF graph
+    g = node2vec.SparseOTF(p=p, q=q, workers=NUM_THREADS, verbose=False, extend=extend)
+    g.read_edg(network_fp, weighted, directed=False)
+
+    # simulate random walks and genearte embedings
+    walks = g.simulate_walks(num_walks=W2V_NUMWALKS, walk_length=W2V_WALKLENGTH)
+    w2v = Word2Vec(walks, vector_size=dim, window=W2V_WINDOW,
+                   min_count=0, sg=1, workers=NUM_THREADS, epochs=W2V_EPOCHS)
+
+    # return embeddings with node IDs
+    X_emd = w2v.wv.vectors
+    IDs = np.array(w2v.wv.index_to_key)
+
+    return X_emd, IDs
 
