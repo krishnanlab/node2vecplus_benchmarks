@@ -57,8 +57,6 @@ def _evaluate(X_emd, IDs, label_fp, random_state):
     align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
     n_tasks = label_ids.size
 
-    # initialize classifiaction model and split generator
-
     # train and evaluate predictions for each task
     train_score_list, valid_score_list, test_score_list = [], [], []
     for task_idx in range(n_tasks):

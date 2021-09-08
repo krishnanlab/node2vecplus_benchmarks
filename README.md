@@ -99,7 +99,7 @@ The networks are processed by removing isolated nodes and converting to edge lis
 
 ## Downloading PPIs
 
-Due to file size limitation, the PPIs are not uploaded to this GitHub repository. 
+Due to the file size limitation, the PPIs are not uploaded to this GitHub repository. 
 Instead, they are pulled from two external data repositories 
 [GenePlexus](https://zenodo.org/record/3352348/#.YTejK9NKhzU) and [GIANT](http://giant.princeton.edu/). 
 
