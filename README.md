@@ -5,11 +5,16 @@ This repository contains data and scripts for reproducing evaluation results pre
 Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
 a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
 
+# Quick start
+
+Follow the scripts below to execute full evaluation provaided in this repository. 
+For more details, check out the sections below. 
+
+***PROCEED WITH CAUTION: the full evaluation consumes significant amount of space and computational resources (via [SLURM](https://slurm.schedmd.com/overview.html))***
+
 * [Setup environment](#setting-up-environment)
 * [Download PPIs](#downloading-ppis)
 * [Evaluate](#evaluation)
-
-# Quick start
 
 ```bash
 cd script/init_setup
