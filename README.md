@@ -10,11 +10,11 @@ a fast and memory efficient implementation of [node2vec](https://snap.stanford.e
 Follow the scripts below to execute full evaluation provaided in this repository. 
 For more details, check out the sections below. 
 
-***PROCEED WITH CAUTION: the full evaluation consumes significant amount of space and computational resources (via [SLURM](https://slurm.schedmd.com/overview.html))***
-
 * [Setup environment](#setting-up-environment)
 * [Download PPIs](#downloading-ppis)
 * [Evaluate](#evaluation)
+
+***PROCEED WITH CAUTION: the full evaluation consumes significant amount of space and computational resources (via [SLURM](https://slurm.schedmd.com/overview.html))***
 
 ```bash
 cd script/init_setup
@@ -128,6 +128,7 @@ processed for each PPI network following [GenePlexus](https://academic.oup.com/b
 This repository contains the following scripts for reproducing the evaluation results
 
 * `eval_hcluster.py` - evaluate performnace of node2vec(+) using hierarchical cluster graphs
+* `eval_realworld_networks.py` - evaluate performance of node2vec(+) using commonly benchmarked real-world datasets BlogCatalog and Wikipedia
 * `eval_gene_classification_n2v.py` - evalute performance of node2vec(+) for gene classification tasks using PPI networks
 * `eval_gene_classification_gnn.py` - evaluate performance of GNNs for gene classification tasks using PPI networks
 
@@ -157,6 +158,9 @@ cd slurm
 
 # submit all evaluations on hierarchical cluster graphs
 sbatch eval_hcluster_all.sb
+
+# submit all evaluations for BlogCatalog and Wikipedia
+sbatch eval_realworld_networks.sb
 
 # submit all evaluations for gene classifications using node2vec(+)
 sbatch eval_gene_classification_n2v.sb
