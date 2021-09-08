@@ -18,7 +18,6 @@ LABEL_DIR = f"{DATA_DIR}/labels/hierarchical_cluster"
 check_dirs([RESULT_DIR, OUTPUT_DIR])
 
 TASK_LIST = ['cluster', 'level']
-REPETITION = 10
 
 ###DEFAULT HYPER PARAMS###
 HPARAM_P = 1
