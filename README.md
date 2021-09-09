@@ -172,8 +172,8 @@ sbatch eval_gene_classification_gnn.sb
 Or submitting all evaluations above by simply running
 
 ```bash
-sh evaluate_all.sh
+sh submit_all.sh
 ```
 
-Note: depending on the your preference you can modify the nodes requirement in `evaluate_all.sh` for individual jobs script.
+Note: depending on the your preference you can modify the nodes requirement in `submit_all.sh` for individual jobs script.
 
