@@ -1,7 +1,7 @@
 # Node2vec+ Benchmarks
 
 This repository contains data and scripts for reproducing evaluation results presented in 
-[*Accurately modeling biased random walks on weighted graphs using node2vec+*](). 
+[*Accurately Modeling Biased Random Walks on Weighted Wraphs Using Node2vec+*](). 
 Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
 a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
 
