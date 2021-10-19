@@ -25,7 +25,8 @@ HPARAM_DIM = 128
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Run evaluation on hierarchical cluster datasets")
+        description="Run evaluation on hierarchical cluster datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--network", required=True,
         help="Name of hierarchical cluster graph to use")

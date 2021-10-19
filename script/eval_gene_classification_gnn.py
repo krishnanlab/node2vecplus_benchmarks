@@ -106,7 +106,8 @@ def test(model, data, train_idx, valid_idx, test_idx):
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Run evaluation for gene classification using GNN")
+        description="Run evaluation for gene classification using GNN",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument('--network', required=True,
         help="Name of the protein protein interaction network")
