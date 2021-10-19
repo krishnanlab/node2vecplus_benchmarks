@@ -27,7 +27,8 @@ HPARAM_DIM = 128
 
 def parse_args():
     parser = argparse.ArgumentParser(
-        description="Run evaluation on real-world datasets")
+        description="Run evaluation on real-world datasets",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
     parser.add_argument("--network", required=True,
         help="Name of real-world network to use")
