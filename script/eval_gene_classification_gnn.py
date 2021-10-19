@@ -82,8 +82,8 @@ def train(model, data, train_idx, optimizer, pos_weight):
     criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
 
     optimizer.zero_grad()
-    out = model(data.x, data.adj)
-    loss = criterion(out, data.y.to(torch.float))
+    out = model(data.x, data.adj)[train_idx]
+    loss = criterion(out, data.y[train_idx].to(torch.float))
     loss.backward()
     optimizer.step()
 
