@@ -77,9 +77,9 @@ class SAGE(torch.nn.Module):
         return x
 
 
-def train(model, data, train_idx, optimizer, pos_weight):
+def train(model, data, train_idx, optimizer):
     model.train()
-    criterion = torch.nn.BCEWithLogitsLoss(pos_weight=pos_weight)
+    criterion = torch.nn.BCEWithLogitsLoss()
 
     optimizer.zero_grad()
     out = model(data.x, data.adj)[train_idx]
@@ -124,6 +124,9 @@ def parse_args():
     parser.add_argument('--use_sage', action='store_true',
         help="Use GraphSAGE instead of GCN, defulat is using GCN")
 
+    parser.add_argument('--test', action='store_true',
+        help="Toggle test mode, run with --nooutput and small epoch")
+
     args = parser.parse_args()
     print(args)
 
@@ -141,11 +144,6 @@ def load_data(network, dataset, use_sage, device):
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
     align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
 
-    # compute scaling factors for handeling data imbalance
-    tot_num = train_idx.size + valid_idx.size + test_idx.size
-    pos_weight = (tot_num - y.sum(axis=0)) / y.sum(axis=0)
-    pos_weight = torch.tensor(pos_weight).to(device)
-
     # converting tor torch tensor
     y = torch.tensor(y)
     train_idx = torch.tensor(train_idx, dtype=torch.long).to(device)
@@ -158,7 +156,7 @@ def load_data(network, dataset, use_sage, device):
     else:
         x = torch.ones(adj_mat.shape[0], 1)
     
-    return adj, x, y, train_idx, valid_idx, test_idx, label_ids, pos_weight
+    return adj, x, y, train_idx, valid_idx, test_idx, label_ids
 
 
 def main(args):
@@ -170,8 +168,13 @@ def main(args):
     device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
     method = 'sage' if use_sage else 'gcn'
 
+    if args.test:
+        HPARAM_EPOCHS = 100
+        EVAL_STEPS = 10
+        nooutput = True
+
     # load and constructing data object
-    adj, x, y, train_idx, valid_idx, test_idx, label_ids, pos_weight = load_data(network, dataset, use_sage, device)
+    adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(network, dataset, use_sage, device)
     data = Data(x=x, y=y)
     data.adj = adj
     data = data.to(device)
@@ -189,7 +192,7 @@ def main(args):
 
     # train model
     for epoch in range(1, 1 + HPARAM_EPOCHS):
-        loss = train(model, data, train_idx, optimizer, pos_weight)
+        loss = train(model, data, train_idx, optimizer)
 
         if epoch % EVAL_STEPS  == 0:
             results = test(model, data, train_idx, valid_idx, test_idx)
