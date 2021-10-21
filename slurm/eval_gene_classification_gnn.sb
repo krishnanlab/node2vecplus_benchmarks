@@ -2,7 +2,7 @@
 
 #SBATCH -N 1
 #SBATCH -c 1
-#SBATCH -t 12:00:00
+#SBATCH -t 3:55:00
 #SBATCH --mem=16GB
 #SBATCH --gres=gpu:v100:1
 #SBATCH --array=0-17  # 3 networks, 3 datasets, 2 gnns
