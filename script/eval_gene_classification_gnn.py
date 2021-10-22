@@ -172,6 +172,9 @@ def main(args):
         HPARAM_EPOCHS = 100
         EVAL_STEPS = 10
         nooutput = True
+    else:
+        HPARAM_EPOCHS = 30000
+        EVAL_STEPS = 100
 
     # load and constructing data object
     adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(network, dataset, use_sage, device)
