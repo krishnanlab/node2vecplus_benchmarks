@@ -12,7 +12,7 @@ from util import *
 
 
 OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
-CV_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
+CV_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v_cv"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
@@ -108,7 +108,7 @@ def _evaluate_cv(X_emd, IDs, label_fp, random_state, df_info):
                 train_idx = train_valid_idx[train_idx]
                 valid_idx = train_valid_idx[valid_idx]
                 train_valid_test_idx = train_idx, valid_idx, test_idx
-                
+
                 mdl.fit(X_emd_eval[train_idx], y_eval[train_idx, task_idx])
                 for task_score_list, idx in zip(task_score_lists, train_valid_test_idx):
                     task_score_list.append(score_func(y_eval[idx, task_idx],
@@ -136,7 +136,6 @@ def evaluate(args):
 
     if args.test:
         NUM_THREADS = 128
-        nooutput = True
     else:
         NUM_THREADS = 4
 
@@ -148,7 +147,7 @@ def evaluate(args):
     pq = f"p={p}_q={q}"
     method = 'Node2vec+' if extend else 'Node2vec'
     network_fp = f"{NETWORK_DIR}/{network}.npz"
-    output_fp = f"{OUTPUT_DIR}/{network}_n2v{'plus' if extend else ''}_p={p}_q={q}.csv"
+    output_fn = f"{network}_n2v{'plus' if extend else ''}_p={p}_q={q}.csv"
 
     # generate embeddings and report time usage
     t = time()
@@ -156,28 +155,33 @@ def evaluate(args):
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to generate embeddings using {method}")
 
-    # run evaluation with repetitions for all datasets and report time usage
-    t = time()
-    result_df_list = []
-    for dataset in DATASET_LIST:
-        label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
+    # evaluate based on both study-bias holdout and 5-fold cross validation
+    eval_funcs = [_evaluate, _evaluate_cv]
+    outdirs = [OUTPUT_DIR, CV_OUTPUT_DIR]
+    for eval_func, outdir in zip(eval_funcs, outdirs):
+        # run evaluation with repetitions for all datasets and report time usage
+        t = time()
+        result_df_list = []
+        for dataset in DATASET_LIST:
+            label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
-        df_info = {'Dataset': dataset, 'Network': network,
-                   'Method': method, 'p': p, 'q': q, 'pq': p}
-        df = _evaluate_cv(X_emd, IDs, label_fp, random_state, df_info)
-        result_df_list.append(df)
-    t = time() - t
-    print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to evaluate")
-        
-    # combine results into a single dataframe
-    result_df = pd.concat(result_df_list).sort_values('Task')
+            df_info = {'Dataset': dataset, 'Network': network,
+                       'Method': method, 'p': p, 'q': q, 'pq': p}
+            df = eval_func(X_emd, IDs, label_fp, random_state, df_info)
+            result_df_list.append(df)
+        t = time() - t
+        print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to evaluate")
 
-    # save or print results
-    if nooutput:
-        print(result_df)
-        print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
-    else:
-        result_df.to_csv(output_fp, index=False)
+        # combine results into a single dataframe
+        result_df = pd.concat(result_df_list).sort_values('Task')
+
+        # save or print results
+        if nooutput:
+            print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
+        else:
+            print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
+            output_fp = f"{outdir}/{output_fn}"
+            result_df.to_csv(output_fp, index=False)
 
 
 def main():
