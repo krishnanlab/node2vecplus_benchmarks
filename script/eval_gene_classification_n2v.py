@@ -59,22 +59,20 @@ def _evaluate(X_emd, IDs, label_fp, random_state):
     # load labels and study-bias holdout splits
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
     align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
+    train_valid_test_idx = train_idx, valid_idx, test_idx
     n_tasks = label_ids.size
 
     # train and evaluate predictions for each task
-    train_score_list, valid_score_list, test_score_list = [], [], []
+    score_lists = [], [], []
     for task_idx in range(n_tasks):
         mdl = LogisticRegression(penalty='l2', solver='liblinear', max_iter=500)
         mdl.fit(X_emd[train_idx], y[train_idx, task_idx])
 
-        train_score_list.append(score_func(y[train_idx, task_idx], mdl.decision_function(X_emd[train_idx])))
-        valid_score_list.append(score_func(y[valid_idx, task_idx], mdl.decision_function(X_emd[valid_idx])))
-        test_score_list.append(score_func(y[test_idx, task_idx], mdl.decision_function(X_emd[test_idx])))
+        for score_list, idx in zip(score_lists, train_valid_test_idx):
+            score_list.append(score_func(y[idx, task_idx], mdl.decision_function(X_emd[idx])))
 
     df = pd.DataFrame()
-    df['Training score'] = train_score_list
-    df['Validation score'] = valid_score_list
-    df['Testing score'] = test_score_list
+    df['Training score'], df['Validation score'], df['Testing score'] = score_lists
     df['Task'] = list(label_ids)
 
     return df
