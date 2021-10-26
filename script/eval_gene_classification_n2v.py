@@ -6,15 +6,17 @@ import numpy as np
 import pandas as pd
 
 from sklearn.linear_model import LogisticRegression
+from sklearn.model_selection import StratifiedKFold
 
 from util import *
 
 
 OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
+CV_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-check_dirs([RESULT_DIR, OUTPUT_DIR])
+check_dirs([RESULT_DIR, OUTPUT_DIR, CV_OUTPUT_DIR])
 
 DATASET_LIST = ['GOBP', 'KEGGBP', 'DisGeNet']
 
@@ -80,6 +82,50 @@ def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     return df
 
 
+def _evaluate_cv(X_emd, IDs, label_fp, random_state, df_info):
+    # load labels and study-bias holdout splits
+    y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
+    align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
+    n_tasks = label_ids.size
+
+    eval_idx = np.concatenate([train_idx, valid_idx, test_idx])
+    y_eval = y[eval_idx]
+    X_emd_eval = X_emd[eval_idx]
+
+    # initialize splitter and model
+    skf1 = StratifiedKFold(n_splits=5, shuffle=True, random_state=random_state)
+    skf2 = StratifiedKFold(n_splits=4, shuffle=True, random_state=random_state)
+    mdl = LogisticRegression(penalty='l2', solver='liblinear', max_iter=500)
+
+    # train and evaluate predictions for each task
+    score_lists = [], [], []
+    for task_idx in range(n_tasks):
+        task_score_lists = [], [], []
+        for train_valid_idx, test_idx in skf1.split(y_eval, y_eval[:, task_idx]):
+            y_train_valid = y_eval[train_valid_idx, task_idx]
+
+            for train_idx, valid_idx in skf2.split(y_train_valid, y_train_valid):
+                train_idx = train_valid_idx[train_idx]
+                valid_idx = train_valid_idx[valid_idx]
+                train_valid_test_idx = train_idx, valid_idx, test_idx
+                
+                mdl.fit(X_emd_eval[train_idx], y_eval[train_idx, task_idx])
+                for task_score_list, idx in zip(task_score_lists, train_valid_test_idx):
+                    task_score_list.append(score_func(y_eval[idx, task_idx],
+                                           mdl.decision_function(X_emd_eval[idx])))
+
+        for score_list, task_score_list in zip(score_lists, task_score_lists):
+            score_list.append(np.mean(task_score_list))
+
+    df = pd.DataFrame()
+    df['Training score'], df['Validation score'], df['Testing score'] = score_lists
+    df['Task'] = list(label_ids)
+    for name, val in df_info.items():
+        df[name] = val
+
+    return df
+
+
 def evaluate(args):
     network = args.network
     extend = args.extend
@@ -118,7 +164,7 @@ def evaluate(args):
 
         df_info = {'Dataset': dataset, 'Network': network,
                    'Method': method, 'p': p, 'q': q, 'pq': p}
-        df = _evaluate(X_emd, IDs, label_fp, random_state, df_info)
+        df = _evaluate_cv(X_emd, IDs, label_fp, random_state, df_info)
         result_df_list.append(df)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to evaluate")
