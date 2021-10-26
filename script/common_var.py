@@ -1,8 +1,6 @@
 DATA_DIR = "../data"
 RESULT_DIR = "../result"
 
-NUM_THREADS = 4
-
 REPETITION = 10
 
 W2V_NUMWALKS = 10

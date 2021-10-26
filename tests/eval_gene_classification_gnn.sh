@@ -8,5 +8,5 @@ echo homedir=$homedir
 
 cd $homedir/script
 
-python eval_gene_classification_gnn.py --network STRING --dataset GOBP --test
-python eval_gene_classification_gnn.py --network STRING --dataset GOBP --use_sage --test
+python eval_gene_classification_gnn.py --network STRING --dataset GOBP --test --nooutput
+python eval_gene_classification_gnn.py --network STRING --dataset GOBP --test --nooutput --use_sage
