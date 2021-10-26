@@ -115,6 +115,7 @@ def evaluate(args):
     # save or print results
     if nooutput:
         print(result_df)
+        print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
     else:
         result_df.to_csv(output_fp, index=False)
 
