@@ -46,6 +46,9 @@ def parse_args():
     parser.add_argument("--random_state", type=int, default=0,
         help="Random state used for generating random splits")
 
+    parser.add_argument('--test', action='store_true',
+        help="Toggle test mode, run with --nooutput and small epoch")
+
     args = parser.parse_args()
     print(args)
 
@@ -85,6 +88,17 @@ def evaluate(args):
     random_state = args.random_state
     nooutput = args.nooutput
 
+    if args.test:
+        NUM_THREADS = 128
+        nooutput = True
+    else:
+        NUM_THREADS = 4
+
+    try:
+        numba.set_num_threads(NUM_THREADS)
+    except ValueError:
+        pass
+
     pq = f"p={p}_q={q}"
     method = 'Node2vec+' if extend else 'Node2vec'
     network_fp = f"{NETWORK_DIR}/{network}.npz"
@@ -92,7 +106,7 @@ def evaluate(args):
 
     # generate embeddings and report time usage
     t = time()
-    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, p, q)
+    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, p, q, NUM_THREADS)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to generate embeddings using {method}")
 
