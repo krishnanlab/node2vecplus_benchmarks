@@ -55,7 +55,7 @@ def parse_args():
     return args
 
 
-def _evaluate(X_emd, IDs, label_fp, random_state):
+def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     # load labels and study-bias holdout splits
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
     align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
@@ -74,6 +74,8 @@ def _evaluate(X_emd, IDs, label_fp, random_state):
     df = pd.DataFrame()
     df['Training score'], df['Validation score'], df['Testing score'] = score_lists
     df['Task'] = list(label_ids)
+    for name, val in df_info.items():
+        df[name] = val
 
     return df
 
@@ -114,9 +116,9 @@ def evaluate(args):
     for dataset in DATASET_LIST:
         label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
-        df = _evaluate(X_emd, IDs, label_fp, random_state)
-        df['Dataset'], df['Network'], df['Method'] = dataset, network, method
-        df['p'], df['q'], df['pq'] = p, q, pq
+        df_info = {'Dataset': dataset, 'Network': network,
+                   'Method': method, 'p': p, 'q': q, 'pq': p}
+        df = _evaluate(X_emd, IDs, label_fp, random_state, df_info)
         result_df_list.append(df)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to evaluate")
