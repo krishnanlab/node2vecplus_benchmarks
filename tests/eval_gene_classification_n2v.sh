@@ -8,6 +8,5 @@ echo homedir=$homedir
 
 cd $homedir/script
 
-#python eval_gene_classification_n2v.py --network STRING --p 1 --q 0.01 --test --nooutput
-#python eval_gene_classification_n2v.py --network STRING --p 1 --q 0.01 --test --nooutput --extend
-python eval_gene_classification_n2v.py --network STRING --p 1 --q 0.01 --test
+python eval_gene_classification_n2v.py --network STRING --p 1 --q 0.01 --test --nooutput
+python eval_gene_classification_n2v.py --network STRING --p 1 --q 0.01 --test --nooutput --extend
