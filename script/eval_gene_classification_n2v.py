@@ -49,7 +49,7 @@ def parse_args():
         help="Random state used for generating random splits")
 
     parser.add_argument('--test', action='store_true',
-        help="Toggle test mode, run with --nooutput and small epoch")
+        help="Toggle test mode, run with more workers")
 
     args = parser.parse_args()
     print(args)

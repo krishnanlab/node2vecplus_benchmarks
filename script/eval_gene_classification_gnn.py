@@ -125,7 +125,7 @@ def parse_args():
         help="Use GraphSAGE instead of GCN, defulat is using GCN")
 
     parser.add_argument('--test', action='store_true',
-        help="Toggle test mode, run with --nooutput and small epoch")
+        help="Toggle test mode, run with fewer epochs")
 
     args = parser.parse_args()
     print(args)
