@@ -3,8 +3,6 @@ import logging
 import json
 from time import time
 
-import networkx as nx
-
 from pecanpy.graph import SparseGraph
 
 
@@ -31,6 +29,53 @@ class timeit:
             return result
 
         return timed_func
+
+
+class Graph:
+    """
+    A lite weight graph object.
+    """
+    def __init__(self):
+        self.data = []
+        self.IDlst = []
+        self.IDmap = {}
+        self._number_of_nodes = 0
+        self._number_of_edges = 0
+
+    @property
+    def nodes(self):
+        return self.IDlst.copy()
+
+    @property
+    def number_of_nodes(self):
+        return self._number_of_nodes
+
+    @property
+    def number_of_edges(self):
+        return self._number_of_edges
+
+    def get_node_idx(self, node):
+        if node not in self.IDmap:
+            self.IDmap[node] = self.number_of_nodes
+            self.IDlst.append(node)
+            self.data.append({})
+            self._number_of_nodes += 1
+
+        return self.IDmap[node]
+
+    def add_edge(self, node1, node2, weight):
+        idx1 = self.get_node_idx(node1)
+        idx2 = self.get_node_idx(node2)
+        self.data[idx1][idx2] = self.data[idx2][idx1] = weight
+        self._number_of_edges += 1
+
+    def save(self, outpath):
+        with open(outpath, 'w') as f:
+            for idx1 in range(self.number_of_nodes):
+                node1 = self.IDlst[idx1]
+                for idx2, weight in self.data[idx1].items():
+                    node2 = self.IDlst[idx2]
+                    f.write(f'{node1}\t{node2}\t{weight}\n')
 
 
 def parse_args():
@@ -95,7 +140,7 @@ def get_product_product_graph(g, product_category_dict):
     """
     Convert the product-review graph into a product product co-review graph.
     """
-    g_product_raw = nx.Graph()
+    g_product_raw = Graph()
     n = len(g.IDlst)
 
     for i in range(n - 1):
@@ -113,33 +158,22 @@ def get_product_product_graph(g, product_category_dict):
             coreview = len(reviewer_set1 & reviewer_set2)
 
             if coreview > 0:
-                g_product_raw.add_edge(id1, id2, weight=coreview)
+                g_product_raw.add_edge(id1, id2, coreview)
 
     logging.info(f'Finished constructing the prodcut-prodcut graph, number '
-                 f'of produts = {g_product_raw.number_of_nodes()}')
+                 f'of produts = {g_product_raw.number_of_nodes}')
 
-    lcc = max(nx.connected_components(g_product_raw), key=len)
-    g_product_lcc = g_product_raw.subgraph(lcc)
+    #lcc = max(nx.connected_components(g_product_raw), key=len)
+    #g_product_lcc = g_product_raw.subgraph(lcc)
 
-    logging.info(f'Extracted largest connected component: number of nodes = '
-                 f'{g_product_lcc.number_of_nodes()}, number of edges = '
-                 f'{g_product_lcc.number_of_edges()}')
+    #logging.info(f'Extracted largest connected component: number of nodes = '
+    #             f'{g_product_lcc.number_of_nodes()}, number of edges = '
+    #             f'{g_product_lcc.number_of_edges()}')
 
-    return g_product_lcc
-
-
-@timeit('save the product graph')
-def save_graph(g, output_fp):
-    """
-    Save the product graph as an edge list file with coreview count.
-    """
-    if output_fp is None:
-        logging.warning(f'Output disabled, did not save product graph')
-    else:
-        nx.write_edgelist(g, output_fp, data=['weight'])
+    #return g_product_lcc
+    return g_product_raw
 
 
-@timeit('save the product category labels')
 def save_label(nodes, category_dict, output_fp):
     """
     Save product category information as index.
@@ -182,7 +216,7 @@ def main():
     product_category_dict = get_product_categoeis(args.metadata_fp)
     g_product = get_product_product_graph(g, product_category_dict)
 
-    save_graph(g_product, args.graph_output_fp)
+    g_product.save(args.graph_output_fp)
     save_label(g_product.nodes, product_category_dict, args.label_output_fp)
 
 
