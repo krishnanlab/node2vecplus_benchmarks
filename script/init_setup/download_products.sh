@@ -33,6 +33,4 @@ graph_output_fp=$product_data_dir/Product.edg
 label_output_fp=$home_dir/data/labels/Product.tsv
 
 python process_products.py $edgelst_fp $metadata_fp --graph_output_fp $graph_output_fp \
-    --label_output_fp $label_output_fp > $product_data_dir/data_processing.log
-
-
+    --label_output_fp $label_output_fp > $product_data_dir/category_info.txt

@@ -150,7 +150,7 @@ def parse_args():
                         help='Output path for the labels')
 
     args = parser.parse_args()
-    print(args)
+    logging.info(args)
 
     return args
 
@@ -246,15 +246,15 @@ def save_label(nodes, category_dict, output_fp):
 
             f.write(f'{product}\t{category_idx}\n')
 
-    print("Category index mapping:")
+    print('#index\tcategory\tcaount')
     for category, idx in category_idx_map.items():
-        print(f'\t{idx:02d}: {category} (n = {category_count[category]})')
+        print(f'{idx}\t{category}\t{category_count[category]}')
 
 
 @timeit('run the full processing')
 def main():
-    args = parse_args()
     logging.basicConfig(level=logging.INFO)
+    args = parse_args()
 
     g = get_product_review_graph(args.edglst_fp)
     product_category_dict = get_product_categoeis(args.metadata_fp)
