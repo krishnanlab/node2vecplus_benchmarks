@@ -69,13 +69,65 @@ class Graph:
         self.data[idx1][idx2] = self.data[idx2][idx1] = weight
         self._number_of_edges += 1
 
-    def save(self, outpath):
-        with open(outpath, 'w') as f:
-            for idx1 in range(self.number_of_nodes):
-                node1 = self.IDlst[idx1]
-                for idx2, weight in self.data[idx1].items():
-                    node2 = self.IDlst[idx2]
-                    f.write(f'{node1}\t{node2}\t{weight}\n')
+    def save(self, outpath, subgraph=None):
+        """
+        Save (sub)graph as an edge list with weights.
+
+        Args:
+            outpath: output edge list file path.
+            subgraph: Optional, node indices to be output to the edge list.
+        """
+        if outpath is not None:
+            subgraph = set(subgraph) if subgraph is not None else \
+                       set(range(self.number_of_nodes))
+
+            with open(outpath, 'w') as f:
+                for idx1 in range(self.number_of_nodes):
+                    if idx1 not in subgraph:
+                        continue
+
+                    node1 = self.IDlst[idx1]
+                    for idx2, weight in self.data[idx1].items():
+                        if idx2 not in subgraph:
+                            continue
+
+                        node2 = self.IDlst[idx2]
+                        f.write(f'{node1}\t{node2}\t{weight}\n')
+
+    @timeit('extract the largest connected component')
+    def get_lcc(self):
+        lcc = max(self.get_connected_components(), key=len)
+        logging.info(f'Extracted largest connected component: '
+                     f'number of nodes = {self.number_of_nodes}')
+        return lcc
+
+    def get_connected_components(self):
+        """
+        Find connected components via BFS search.
+        """
+        unvisited = set(range(self.number_of_nodes))
+        components = []
+
+        while unvisited:
+            seed_node = next(iter(unvisited))
+            next_level_nodes = [seed_node]
+            component_membership = []
+
+            while next_level_nodes:
+                curr_level_nodes = next_level_nodes[:]
+                next_level_nodes = []
+
+                for node in curr_level_nodes:
+                    if node in unvisited:
+                        for nbr in self.data[node]:
+                            if nbr in unvisited:
+                                next_level_nodes.append(nbr)
+                        component_membership.append(node)
+                        unvisited.remove(node)
+
+            components.append(component_membership)
+
+        return components
 
 
 def parse_args():
@@ -163,13 +215,6 @@ def get_product_product_graph(g, product_category_dict):
     logging.info(f'Finished constructing the prodcut-prodcut graph, number '
                  f'of produts = {g_product_raw.number_of_nodes}')
 
-    #lcc = max(nx.connected_components(g_product_raw), key=len)
-    #g_product_lcc = g_product_raw.subgraph(lcc)
-
-    #logging.info(f'Extracted largest connected component: number of nodes = '
-    #             f'{g_product_lcc.number_of_nodes()}, number of edges = '
-    #             f'{g_product_lcc.number_of_edges()}')
-
     #return g_product_lcc
     return g_product_raw
 
@@ -209,15 +254,16 @@ def save_label(nodes, category_dict, output_fp):
 @timeit('run the full processing')
 def main():
     args = parse_args()
-
     logging.basicConfig(level=logging.INFO)
 
     g = get_product_review_graph(args.edglst_fp)
     product_category_dict = get_product_categoeis(args.metadata_fp)
     g_product = get_product_product_graph(g, product_category_dict)
 
-    g_product.save(args.graph_output_fp)
-    save_label(g_product.nodes, product_category_dict, args.label_output_fp)
+    subgraph = g_product.get_lcc()
+    subgraph_ids = [g_product.IDlst[i] for i in subgraph]
+    g_product.save(args.graph_output_fp, subgraph)
+    save_label(subgraph_ids, product_category_dict, args.label_output_fp)
 
 
 if __name__ == '__main__':
