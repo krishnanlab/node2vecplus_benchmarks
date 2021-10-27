@@ -3,6 +3,7 @@ pecanpy/
 
 # ignore large network data
 data/networks/ppi/
+data/networks/product/
 
 # ignore jupyter notebook checkpoints
 .ipynb_checkpoints/
@@ -12,3 +13,6 @@ slurm_history/
 
 # ignore pycache
 __pycache__/
+
+# ignore vim buffer
+*.swp
