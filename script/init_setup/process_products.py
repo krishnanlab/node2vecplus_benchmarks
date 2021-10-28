@@ -98,7 +98,7 @@ class Graph:
     def get_lcc(self):
         lcc = max(self.get_connected_components(), key=len)
         logging.info(f'Extracted largest connected component: '
-                     f'number of nodes = {self.number_of_nodes}')
+                     f'number of nodes = {len(lcc)}')
         return lcc
 
     def get_connected_components(self):
@@ -124,6 +124,7 @@ class Graph:
                                 next_level_nodes.append(nbr)
                         component_membership.append(node)
                         unvisited.remove(node)
+                        logging.debug(f'Number of unvisited = {len(unvisited)}')
 
             components.append(component_membership)
 
@@ -192,31 +193,36 @@ def get_product_product_graph(g, product_category_dict):
     """
     Convert the product-review graph into a product product co-review graph.
     """
-    g_product_raw = Graph()
+    g_product = Graph()
     n = len(g.IDlst)
 
     for i in range(n - 1):
+        logging.debug(f'Working on {i + 1} of {n} products')
         id1 = g.IDlst[i]
         if id1 not in product_category_dict:
             continue
         reviewer_set1 = set(g.data[i])
 
-        for j in range(i + 1, n):
+        # bfs search for finding relevant products to reduce runtime
+        product_set = set()
+        for reviewer in reviewer_set1:
+            product_set.update(set(g.data[reviewer]))
+        product_set.remove(i)  # remove self connection
+
+        for j in product_set:
             id2 = g.IDlst[j]
             if id2 not in product_category_dict:
                 continue
             reviewer_set2 = set(g.data[j])
 
             coreview = len(reviewer_set1 & reviewer_set2)
-
             if coreview > 0:
-                g_product_raw.add_edge(id1, id2, coreview)
+                g_product.add_edge(id1, id2, coreview)
 
     logging.info(f'Finished constructing the prodcut-prodcut graph, number '
-                 f'of produts = {g_product_raw.number_of_nodes}')
+                 f'of produts = {g_product.number_of_nodes}')
 
-    #return g_product_lcc
-    return g_product_raw
+    return g_product
 
 
 def save_label(nodes, category_dict, output_fp):
