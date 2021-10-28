@@ -150,10 +150,9 @@ def parse_args():
     parser.add_argument('--label_output_fp', default=None,
                         help='Output path for the labels')
 
-    args = parser.parse_args()
-    logging.info(args)
+    parser.add_argument('--logging', default='info', help='Logging level')
 
-    return args
+    return parser.parse_args()
 
 
 @timeit('get product categories')
@@ -197,10 +196,10 @@ def get_product_product_graph(g, product_category_dict):
     n = len(g.IDlst)
 
     for i in range(n - 1):
-        logging.debug(f'Working on {i + 1} of {n} products')
         id1 = g.IDlst[i]
         if id1 not in product_category_dict:
             continue
+        logging.debug(f'Working on {i + 1} of {n} products')
         reviewer_set1 = set(g.data[i])
 
         # bfs search for finding relevant products to reduce runtime
@@ -259,8 +258,11 @@ def save_label(nodes, category_dict, output_fp):
 
 @timeit('run the full processing')
 def main():
-    logging.basicConfig(level=logging.INFO)
     args = parse_args()
+
+    logging_level = getattr(logging, args.logging.upper())
+    logging.basicConfig(level=logging_level)
+    logging.info(args)
 
     g = get_product_review_graph(args.edglst_fp)
     product_category_dict = get_product_categoeis(args.metadata_fp)
