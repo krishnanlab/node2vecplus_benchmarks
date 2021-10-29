@@ -199,7 +199,6 @@ def get_product_product_graph(g, product_category_dict):
         id1 = g.IDlst[i]
         if id1 not in product_category_dict:
             continue
-        logging.debug(f'Working on {i + 1} of {n} products')
         reviewer_set1 = set(g.data[i])
 
         # bfs for finding relevant products to reduce runtime
@@ -207,6 +206,11 @@ def get_product_product_graph(g, product_category_dict):
         for reviewer_idx in reviewer_set1:
             new_products = [j for j in g.data[reviewer_idx] if j > i]
             product_set.update(new_products)
+        if not product_set:  # no new neighbor to add
+            continue
+
+        logging.debug(f'Working on {i + 1} of {n} products, '
+                      f'{len(product_set)} new neighbors')
 
         for j in product_set:
             id2 = g.IDlst[j]

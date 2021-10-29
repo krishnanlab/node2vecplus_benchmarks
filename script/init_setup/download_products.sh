@@ -16,6 +16,8 @@ fi
 mkdir product/downloads
 cd product/downloads
 
+echo WARNING: start downloading Amazon product data, this will take up to an hour
+
 # download and unzip product metadata
 wget http://snap.stanford.edu/data/amazon/productGraph/metadata.json.gz
 gzip -d metadata.json.gz
@@ -31,6 +33,8 @@ edgelst_fp=$product_data_dir/downloads/item_dedup.edg
 metadata_fp=$product_data_dir/downloads/metadata.json
 graph_output_fp=$product_data_dir/Product.edg
 label_output_fp=$home_dir/data/labels/Product.tsv
+
+echo WARNING: start constructing the Amazon product co-review graph, this will take several horus
 
 python process_products.py $edgelst_fp $metadata_fp --graph_output_fp $graph_output_fp \
     --label_output_fp $label_output_fp > $product_data_dir/category_info.txt
