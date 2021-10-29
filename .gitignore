@@ -2,6 +2,7 @@
 pecanpy/
 
 # ignore large network data
+data/labels/Product.tsv
 data/networks/ppi/
 data/networks/product/
 
