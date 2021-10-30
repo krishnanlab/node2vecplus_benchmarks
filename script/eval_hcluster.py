@@ -87,7 +87,7 @@ def evaluate(args):
     # run evaluation with repetitions on both tasks
     result_df_list = []
     for _ in range(REPETITION):
-        X_emd, _ = embed(network_fp, HPARAM_DIM, extend, HPARAM_P, q)
+        X_emd, _ = embed(network_fp, HPARAM_DIM, extend, HPARAM_P, q, workers=4)
 
         train_score_list, test_score_list = [], []
         for task in TASK_LIST:
