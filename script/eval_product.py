@@ -62,7 +62,7 @@ def evaluate(args, X_emd, y, random_state):
         with open(output_fp, "w") as f:
             f.write("Training score,Testing score,Method,q\n")
             f.write(f"{np.mean(train_scores)},{np.mean(test_scores)},"
-                    f"{'Node2vec+' if args.extend else 'Node2vec'},{args.q}")
+                    f"{'Node2vec+' if args.extend else 'Node2vec'},{args.q}\n")
 
 
 def get_emds(args):

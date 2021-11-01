@@ -13,8 +13,8 @@ networks=(STRING GIANT-TN GIANT-TN-c01)
 qs=(0.01 0.05 0.1 0.5 1 5 10 50 100)
 
 ID=$SLURM_ARRAY_TASK_ID
-q=${qs[$(expr $ID / 9)]}
-i=$(expr $ID % 9)
+q=${qs[$(expr $ID % 9)]}
+i=$(expr $ID / 9)
 
 if [ $ID == 0 ]; then 
     # submit job for combining all results after all evaluation jobs are finished
