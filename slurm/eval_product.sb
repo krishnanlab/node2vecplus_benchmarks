@@ -1,0 +1,30 @@
+#!/bin/bash --login
+
+#SBATCH -t 13:00:00
+#SBATCH -N 1
+#SBATCH -c 28
+#SBATCH --mem=240GB
+#SBATCH --array=0-17  # 2 method, 9 q settings
+#SBATCH -o ../slurm_history/slurm-%A-%a.out
+
+cd $SLURM_SUBMIT_DIR
+
+networks=(STRING GIANT-TN GIANT-TN-c01)
+qs=(0.01 0.05 0.1 0.5 1 5 10 50 100)
+
+ID=$SLURM_ARRAY_TASK_ID
+q=${qs[$(expr $ID / 9)]}
+i=$(expr $ID % 9)
+
+if [ $ID == 0 ]; then 
+    # submit job for combining all results after all evaluation jobs are finished
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID combine_results.sb product
+fi
+
+cd ../script
+conda activate node2vecplus-bench
+if [[ $i == 0 ]]; then
+    time python eval_product.py --q $q --extend
+else
+    time python eval_product.py --q $q
+fi
