@@ -255,7 +255,7 @@ def save_label(nodes, category_dict, output_fp):
 
             f.write(f'{product}\t{category_idx}\n')
 
-    print('#index\tcategory\tcaount')
+    print('#index\tcategory\tcount')
     for category, idx in category_idx_map.items():
         print(f'{idx}\t{category}\t{category_count[category]}')
 
