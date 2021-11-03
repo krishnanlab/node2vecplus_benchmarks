@@ -41,4 +41,4 @@ python process_products.py $edgelst_fp $metadata_fp --graph_output_fp $graph_out
     --label_output_fp $label_output_fp > $product_data_dir/category_info.txt
 
 echo WARNING: start converting the Product edge list to CSR, this will take ~1 hour
-pecanpy --intput $graph_output_fp --output $csr_output_fp --task tocsr --workers 1
+pecanpy --intput $graph_output_fp --output $csr_output_fp --weighted --task tocsr --workers 1
