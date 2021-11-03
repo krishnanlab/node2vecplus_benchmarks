@@ -72,7 +72,7 @@ def get_emds(args):
         X_emd = emd_npz["data"]
         emd_IDs = emd_npz["IDs"]
     else:
-        g = node2vec.SparseOTF(1, args.q, 28, False, args.extend)
+        g = node2vec.SparseOTF(1, args.q, 16, False, args.extend)
         g.read_npz(NETWORK_FP, True, False)
         X_emd = g.embed()
         emd_IDs = g.IDlst
