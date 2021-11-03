@@ -9,8 +9,6 @@ cd $home_dir/data/networks
 
 if [[ ! -d "product" ]]; then
     mkdir product
-else
-    rm -rf product/*
 fi
 
 mkdir product/downloads
@@ -31,14 +29,14 @@ cd $home_dir/script/init_setup
 product_data_dir=$home_dir/data/networks/product
 edgelst_fp=$product_data_dir/downloads/item_dedup.edg
 metadata_fp=$product_data_dir/downloads/metadata.json
-graph_output_fp=$product_data_dir/Product.edg
-csr_output_fp=$product_data_dir/Product.csr.npz
-label_output_fp=$home_dir/data/labels/Product.tsv
+graph_output_fp=$product_data_dir/ProductFull.edg
+csr_output_fp=$product_data_dir/ProductFull.csr.npz
+label_output_fp=$home_dir/data/labels/ProductFull.tsv
 
 echo WARNING: start constructing the Amazon product co-review graph, this will take several horus
 
 python process_products.py $edgelst_fp $metadata_fp --graph_output_fp $graph_output_fp \
     --label_output_fp $label_output_fp > $product_data_dir/category_info.txt
 
-echo WARNING: start converting the Product edge list to CSR, this will take ~1 hour
+echo WARNING: start converting the ProductFull edge list to CSR, this will take ~1 hour
 pecanpy --intput $graph_output_fp --output $csr_output_fp --weighted --task tocsr --workers 1
