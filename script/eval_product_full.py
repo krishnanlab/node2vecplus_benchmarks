@@ -7,10 +7,10 @@ from sklearn.model_selection import StratifiedKFold
 from util import *
 
 
-OUTPUT_DIR = f"{RESULT_DIR}/product"
-TEST_EMD_FP = f"{DATA_DIR}/networks/product/Product_n2v.emd.npz"
-NETWORK_FP = f"{DATA_DIR}/networks/product/Product.csr.npz"
-LABEL_FP = f"{DATA_DIR}/labels/Product.tsv"
+OUTPUT_DIR = f"{RESULT_DIR}/product_full"
+TEST_EMD_FP = f"{DATA_DIR}/networks/product_full/ProductFull_n2v.emd.npz"
+NETWORK_FP = f"{DATA_DIR}/networks/product_full/ProductFull.csr.npz"
+LABEL_FP = f"{DATA_DIR}/labels/ProductFull.tsv"
 
 check_dirs([RESULT_DIR, OUTPUT_DIR])
 
