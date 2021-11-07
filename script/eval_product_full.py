@@ -29,6 +29,9 @@ def parse_args():
     parser.add_argument("--nooutput", action="store_true",
         help="Disable output if specified, and print results to screen")
 
+    parser.add_argument("--workers", type=int, default=28,
+        help="Number of workers for embedding")
+
     parser.add_argument("--random_state", type=int, default=0,
         help="Random state used for generating random splits")
 
@@ -72,7 +75,7 @@ def get_emds(args):
         X_emd = emd_npz["data"]
         emd_IDs = emd_npz["IDs"]
     else:
-        g = node2vec.SparseOTF(1, args.q, 16, False, args.extend)
+        g = node2vec.SparseOTF(1, args.q, args.workers, False, args.extend)
         g.read_npz(NETWORK_FP, True, False)
         X_emd = g.embed()
         emd_IDs = g.IDlst

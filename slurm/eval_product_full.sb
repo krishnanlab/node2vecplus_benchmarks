@@ -1,9 +1,9 @@
 #!/bin/bash --login
 
-#SBATCH -t 24:00:00
+#SBATCH -t 48:00:00
 #SBATCH -N 1
-#SBATCH -c 14
-#SBATCH --mem=120GB
+#SBATCH -c 28
+#SBATCH --mem=100GB
 #SBATCH --array=0-17  # 2 method, 9 q settings
 #SBATCH -o ../slurm_history/slurm-%A-%a.out
 
@@ -24,7 +24,7 @@ fi
 cd ../script
 conda activate node2vecplus-bench
 if [[ $i == 0 ]]; then
-    time python eval_product_full.py --q $q --extend
+    time python eval_product_full.py --workers 28 --q $q --extend
 else
-    time python eval_product_full.py --q $q
+    time python eval_product_full.py --workers 28 --q $q
 fi
