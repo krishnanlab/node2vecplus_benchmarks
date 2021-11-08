@@ -7,7 +7,7 @@ home_dir=$(dirname $(dirname $(dirname $(realpath $0))))
 echo home_dir=$home_dir
 cd $home_dir/script/init_setup
 
-product_data_dir=$home_dir/tests/product
+product_data_dir=$home_dir/tests/product_full
 edgelst_fp=$product_data_dir/test_item_dedup.edg
 metadata_fp=$product_data_dir/test_metadata.json
 graph_output_fp=$product_data_dir/test_product.edg
