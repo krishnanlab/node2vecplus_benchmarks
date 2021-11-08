@@ -2,7 +2,7 @@ import argparse
 from time import time
 
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import StratifiedShuffleSplit
 
 from util import *
 
@@ -45,11 +45,11 @@ def parse_args():
 
 
 def evaluate(args, X_emd, y, random_state):
-    skf = StratifiedKFold(n_splits=10, shuffle=True, random_state=random_state)
+    sss = StratifiedShuffleSplit(n_splits=10, train_size=0.01, random_state=random_state)
     mdl = LogisticRegression(penalty="l2", multi_class="multinomial", max_iter=200)
 
     train_scores, test_scores = [], []
-    for i, (train_idx, test_idx) in enumerate(skf.split(X_emd, y)):
+    for i, (train_idx, test_idx) in enumerate(sss.split(X_emd, y)):
         t = time()
         mdl.fit(X_emd[train_idx], y[train_idx])
         t = time() - t
