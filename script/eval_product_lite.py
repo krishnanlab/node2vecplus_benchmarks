@@ -67,9 +67,9 @@ def evaluate(args, X_emd, y, random_state):
         output_fp = f"{OUTPUT_DIR}/n2v{'plus' if args.extend else ''}_q={args.q}_{args.run_idx}.csv"
         method = "Node2vec+" if args.extend else "Node2vec"
         with open(output_fp, "w") as f:
-            f.write("Fold,Training score,Testing score,Method,q\n")
+            f.write("Training score,Testing score,Network,Method,q\n")
             for i, (train_score, test_score) in enumerate(zip(train_scores, test_scores)):
-                f.write(f"{i},{train_score},{test_score},{method},{args.q}\n")
+                f.write(f"{train_score},{test_score},ProductLite,{method},{args.q}\n")
 
 
 def get_emds(args):
