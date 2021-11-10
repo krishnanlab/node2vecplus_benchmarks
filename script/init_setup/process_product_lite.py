@@ -176,13 +176,13 @@ def parse_args():
 
 
 @timeit('get product categories')
-def get_product_categoeis(fp):
+def get_product_categories(fp):
     """Load product labels from a tsv file."""
     product_category_dict = {}
     with open (fp, 'r') as f:
         for line in f:
             product, category = line.strip().split('\t')
-            product_category_dict[product] = category
+            product_category_dict[product] = int(category)
 
     return product_category_dict
 
@@ -196,13 +196,16 @@ def get_product_review_graph(fp):
 
 
 @timeit('construct product-product coreview graph')
-def get_product_product_graph(g):
+def get_product_product_graph(g, product_category_dict):
     """Convert the product-review graph into a product co-review graph."""
     g_product = Graph()
     n = len(g.IDlst)
 
     for i in range(n - 1):
         id1 = g.IDlst[i]
+        # only process prodcut, leave reviewers out
+        if id1 not in product_category_dict:
+            continue
         reviewer_set1 = set(g.data[i])
 
         # bfs for finding relevant products to reduce runtime
@@ -218,6 +221,9 @@ def get_product_product_graph(g):
 
         for j in product_set:
             id2 = g.IDlst[j]
+            # only process prodcut, leave reviewers out
+            if id2 not in product_category_dict:
+                continue
             reviewer_set2 = set(g.data[j])
 
             coreview = len(reviewer_set1 & reviewer_set2)
@@ -283,10 +289,10 @@ def main():
 
     # load product review bipartite graph and the product categories
     g = get_product_review_graph(args.input_edg_fp)
-    product_category_dict = get_product_categoeis(args.input_label_fp)
+    product_category_dict = get_product_categories(args.input_label_fp)
 
     # construct product co-review and extract the lagest connected component
-    g_product = get_product_product_graph(g)
+    g_product = get_product_product_graph(g, product_category_dict)
     subgraph = g_product.get_lcc()
     subgraph_ids = [g_product.IDlst[i] for i in subgraph]
 
