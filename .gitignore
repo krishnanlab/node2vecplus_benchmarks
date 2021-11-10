@@ -2,9 +2,9 @@
 pecanpy/
 
 # ignore large network data
-data/labels/ProductFull.tsv
 data/networks/ppi/
-data/networks/product_full/
+data/labels/Product*.tsv
+data/networks/product_*/
 
 # ignore jupyter notebook checkpoints
 .ipynb_checkpoints/
