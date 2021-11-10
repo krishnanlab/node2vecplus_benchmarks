@@ -66,5 +66,5 @@ output_label_fp=$home_dir/data/labels/ProductLite.tsv
 echo WARNING: start cosntructing the Amazon product co-review graph, this will take ~20 minuts
 
 
-python process_products.py --input_edg_fp $input_edg_fp --output_csr_fp $output_csr_fp \
+python process_product_lite.py --input_edg_fp $input_edg_fp --output_csr_fp $output_csr_fp \
     --input_label_fp $input_label_fp --output_label_fp $output_label_fp
