@@ -2,7 +2,7 @@
 
 #SBATCH -t 3:55:00
 #SBATCH -N 1
-#SBATCH -c 4
+#SBATCH -c 12
 #SBATCH --mem=12GB
 #SBATCH --array=0-179  # 2 method, 9 q settings, 10 runs
 #SBATCH -o ../slurm_history/slurm-%A-%a.out
@@ -24,7 +24,7 @@ fi
 cd ../script
 conda activate node2vecplus-bench
 if [[ $flag == 0 ]]; then
-    time python eval_product_lite.py --workers 4 --q $q --run_idx $run_idx --extend
+    time python eval_product_lite.py --workers 12 --q $q --run_idx $run_idx --extend
 else
-    time python eval_product_lite.py --workers 4 --q $q --run_idx $run_idx
+    time python eval_product_lite.py --workers 12 --q $q --run_idx $run_idx
 fi
