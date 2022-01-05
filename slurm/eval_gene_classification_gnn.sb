@@ -5,13 +5,13 @@
 #SBATCH -t 3:55:00
 #SBATCH --mem=16GB
 #SBATCH --gres=gpu:v100:1
-#SBATCH --array=0-17  # 3 networks, 3 datasets, 2 gnns
+#SBATCH --array=0-11  # 3 networks, 2 datasets, 2 gnns
 #SBATCH -o ../slurm_history/slurm-%A_%a.out
 
 cd $SLURM_SUBMIT_DIR
 
 networks=(STRING GIANT-TN GIANT-TN-c01)
-datasets=(GOBP KEGGBP DisGeNet)
+datasets=(GOBP DisGeNet)
 
 ID=$SLURM_ARRAY_TASK_ID
 network=${networks[$(expr $ID % 3)]}

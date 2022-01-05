@@ -119,7 +119,6 @@ sh download_ppis.sh
 
 The labels for gene classificaitons are available under `data/labels/gene_classification/`, 
 processed for each PPI network following [GenePlexus](https://academic.oup.com/bioinformatics/article/36/11/3457/5780279)
-* `KEGGBP`
 * `GOBP`
 * `DisGeNet`
 

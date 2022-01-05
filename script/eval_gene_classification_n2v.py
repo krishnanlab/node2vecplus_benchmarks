@@ -18,7 +18,7 @@ LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
 check_dirs([RESULT_DIR, OUTPUT_DIR, CV_OUTPUT_DIR])
 
-DATASET_LIST = ['GOBP', 'KEGGBP', 'DisGeNet']
+DATASET_LIST = ['GOBP', 'DisGeNet']
 
 ###DEFAULT HYPER PARAMS###
 HPARAM_DIM = 128
