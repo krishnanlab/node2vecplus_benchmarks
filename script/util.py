@@ -28,25 +28,39 @@ def score_func(y_true, y_pred):
 
 def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     """Align label split IDs using network node IDs"""
-    # map from id to index in the label split
+    # Train/val/test split stats before alignment
+    old_stats = [y[idx].sum(0).tolist() for idx in [train_idx, valid_idx, test_idx]]
+
+    # Map from id to index in the label split
     id_map = {j:i for i,j in enumerate(gene_ids)}
 
-    # index aligning label split ids to network node ids
+    # Index aligning label split ids to network node ids
     aligned_idx = np.array([id_map[i] for i in adj_ids])
 
-    # apply alignment
+    # Align data
     y[:] = y[aligned_idx]
     gene_ids[:] = gene_ids[aligned_idx]
-    train_idx[:] = aligned_idx[train_idx]
-    valid_idx[:] = aligned_idx[valid_idx]
-    test_idx[:] = aligned_idx[test_idx]
+
+    # Align indices
+    aligned_idx_reverse = np.empty(aligned_idx.size, dtype=int)
+    aligned_idx_reverse[aligned_idx] = np.arange(aligned_idx.size)
+    train_idx[:] = aligned_idx_reverse[train_idx]
+    valid_idx[:] = aligned_idx_reverse[valid_idx]
+    test_idx[:] = aligned_idx_reverse[test_idx]
+
+    # Train/val/test split stats after alignment
+    new_stats = [y[idx].sum(0).tolist() for idx in [train_idx, valid_idx, test_idx]]
+
+    # Check to see if the alignment is correct
+    assert adj_ids.tolist() == gene_ids.tolist()
+    assert old_stats == new_stats
+
 
 
 def embed(network_fp, dim, extend, p, q, workers):
     # initialize DenseOTF graph
     adj_mat, IDs = np.load(network_fp).values()
-    g = pecanpy.DenseOTF(p=p, q=q, workers=workers, verbose=False, extend=extend)
-    g.from_mat(adj_mat, IDs)
+    g = pecanpy.DenseOTF.from_mat(adj_mat, IDs, p=p, q=q, workers=workers, extend=extend)
 
     # simulate random walks and genearte embedings
     walks = g.simulate_walks(num_walks=W2V_NUMWALKS, walk_length=W2V_WALKLENGTH)

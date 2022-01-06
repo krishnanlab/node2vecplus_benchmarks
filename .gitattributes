@@ -1,2 +1,2 @@
 # exclude notebook from language statistics
-.ipynb linguist-documentation
+*.ipynb linguist-documentation

@@ -15,8 +15,8 @@ datasets=(GOBP DisGeNet)
 
 ID=$SLURM_ARRAY_TASK_ID
 network=${networks[$(expr $ID % 3)]}
-dataset=${datasets[$(expr $ID / 3 % 3)]}
-flag=$(expr $ID / 3 / 3)
+dataset=${datasets[$(expr $ID / 3 % 2)]}
+flag=$(expr $ID / 3 / 2)
 
 if [ $ID == 0 ]; then
     # submit job for combining all results after all evaluation jobs are finished
