@@ -25,5 +25,3 @@ fi
 cd ../script
 conda activate node2vecplus-bench
 time python eval_gene_classification_n2v.py --network $network --p $p --q $q
-time python eval_gene_classification_n2v.py --network $network --p $p --q $q --extend
-

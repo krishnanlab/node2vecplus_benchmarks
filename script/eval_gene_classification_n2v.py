@@ -11,11 +11,12 @@ from sklearn.model_selection import StratifiedKFold
 from util import *
 
 
-OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
+N2V_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
+N2VPLUS_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2vplus"
 NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-check_dirs([RESULT_DIR, OUTPUT_DIR])
+check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR])
 
 DATASET_LIST = ['GOBP', 'DisGeNet']
 
@@ -103,7 +104,6 @@ def evaluate(args):
     except ValueError:
         pass
 
-    pq = f"p={p}_q={q}"
     method = 'Node2vec+' if extend else 'Node2vec'
     network_fp = f"{NETWORK_DIR}/{network}.npz"
     output_fn = f"{network}_n2v{'plus' if extend else ''}_{p=}_{q=}_{gamma=}.csv"
@@ -120,8 +120,8 @@ def evaluate(args):
     for dataset in DATASET_LIST:
         label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
-        df_info = {'Dataset': dataset, 'Network': network,
-                   'Method': method, 'p': p, 'q': q, 'pq': p}
+        df_info = {'Dataset': dataset, 'Network': network, 'Method': method,
+                   'p': p, 'q': q, 'gamma': gamma}
         df = _evaluate(X_emd, IDs, label_fp, random_state, df_info)
         result_df_list.append(df)
     t = time() - t
@@ -133,7 +133,8 @@ def evaluate(args):
     # Print results summary (and save)
     print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
     if not nooutput:
-        output_fp = f"{OUTPUT_DIR}/{output_fn}"
+        output_dir = N2VPLUS_OUTPUT_DIR if extend else N2V_OUTPUT_DIR
+        output_fp = f"{output_dir}/{output_fn}"
         result_df.to_csv(output_fp, index=False)
 
 
@@ -144,4 +145,3 @@ def main():
 
 if __name__ == '__main__':
     main()
-

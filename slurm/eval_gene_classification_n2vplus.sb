@@ -1,0 +1,29 @@
+#!/bin/bash --login
+
+#SBATCH -t 3:55:00
+#SBATCH -N 1
+#SBATCH -c 4
+#SBATCH --mem=16GB
+#SBATCH --array=0-224  # 3 networks, 5 x 5 x 3 p, q, gamma settings
+#SBATCH -o ../slurm_history/slurm-%A-%a.out
+
+cd $SLURM_SUBMIT_DIR
+
+networks=(STRING GIANT-TN GIANT-TN-c01)
+pqs=(0.01 0.1 1 10 100)
+gammas=(0 1 2)
+
+ID=$SLURM_ARRAY_TASK_ID
+network=${networks[$(expr $ID % 3)]}
+p=${pqs[$(expr $ID / 3 % 5)]}
+q=${pqs[$(expr $ID / 3 / 5 % 5)]}
+gamma=${gammas[$(expr $ID / 3 / 5 / 5)]}
+
+if [ $ID == 0 ]; then
+    # submit job for combining all results after all evaluation jobs are finished
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID combine_results.sb gene_classification_n2vplus
+fi
+
+cd ../script
+conda activate node2vecplus-bench
+time python eval_gene_classification_n2v.py --network $network --p $p --q $q --extend --gamma $gamma
