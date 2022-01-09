@@ -41,6 +41,9 @@ def parse_args():
     parser.add_argument("--extend", action="store_true",
         help="Use node2vec+ if specified, otherwise use node2vec")
 
+    parser.add_argument("--gamma", type=float, default=0,
+        help="Noisy edge threshold parameter.")
+
     parser.add_argument("--nooutput", action='store_true',
         help="Disable output if specified, and print results to screen")
 
@@ -86,6 +89,7 @@ def evaluate(args):
     extend = args.extend
     p = args.p
     q = args.q
+    gamma = args.gamma
     random_state = args.random_state
     nooutput = args.nooutput
 
@@ -102,11 +106,11 @@ def evaluate(args):
     pq = f"p={p}_q={q}"
     method = 'Node2vec+' if extend else 'Node2vec'
     network_fp = f"{NETWORK_DIR}/{network}.npz"
-    output_fn = f"{network}_n2v{'plus' if extend else ''}_p={p}_q={q}.csv"
+    output_fn = f"{network}_n2v{'plus' if extend else ''}_{p=}_{q=}_{gamma=}.csv"
 
     # Generate embeddings
     t = time()
-    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, p, q, NUM_THREADS)
+    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, p, q, NUM_THREADS, gamma)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to generate embeddings using {method}")
 
