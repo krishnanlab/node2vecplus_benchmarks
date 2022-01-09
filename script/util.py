@@ -57,10 +57,11 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
 
 
 
-def embed(network_fp, dim, extend, p, q, workers):
+def embed(network_fp, dim, extend, p, q, workers, gamma):
     # initialize DenseOTF graph
     adj_mat, IDs = np.load(network_fp).values()
-    g = pecanpy.DenseOTF.from_mat(adj_mat, IDs, p=p, q=q, workers=workers, extend=extend)
+    g = pecanpy.DenseOTF.from_mat(adj_mat, IDs, p=p, q=q, workers=workers,
+                                  extend=extend, gamma=gamma)
 
     # simulate random walks and genearte embedings
     walks = g.simulate_walks(num_walks=W2V_NUMWALKS, walk_length=W2V_WALKLENGTH)
