@@ -1,7 +1,7 @@
 #!/bin/bash --login
 
 source ~/.bashrc
-module load GCC/10.2.0 CUDA/11.1.1
+module load GCC/8.3.0 CUDA/10.2.89
 
 sh clean_env.sh
 
@@ -15,14 +15,12 @@ cd $home_dir
 echo home_dir=$home_dir
 echo
 
-echo Setting up Pytorch Geometric
-conda install pytorch torchvision torchaudio cudatoolkit=11.1 -c pytorch-lts -c nvidia -y
+echo Setting up Pytorch Geometric and other dependencies
+conda install pytorch=1.9 torchvision torchaudio cudatoolkit=10.2 -c pytorch
 conda install pyg -c pyg -c conda-forge -y
-conda install numba pandas scikit-learn -y
+conda install pandas scikit-learn -y
 
-echo Download and install development version of PecanPy
-git clone https://github.com/krishnanlab/pecanpy.git
-cd pecanpy
-pip install -e .
+echo Installing PecanPy v2.0.2
+pip install pecanpy==2.0.2
 
 conda clean --all -y
