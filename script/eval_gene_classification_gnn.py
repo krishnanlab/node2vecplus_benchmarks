@@ -22,10 +22,10 @@ check_dirs([RESULT_DIR, OUTPUT_DIR])
 EVAL_STEPS = 100
 HPARAM_GCN_DIM = 128
 HPARAM_GCN_LR = 0.01
-HPARAM_SAGE_DIM = 64
+HPARAM_SAGE_DIM = 128
 HPARAM_SAGE_LR = 0.0005
-HPARAM_NUM_LAYERS = 3
-HPARAM_EPOCHS = 30000
+HPARAM_NUM_LAYERS = 5
+HPARAM_EPOCHS = 5000
 ##########################
 
 
@@ -189,10 +189,12 @@ def main(args):
         model = GCN(x.shape[1], HPARAM_GCN_DIM, y.shape[1], HPARAM_NUM_LAYERS).to(device)
         lr = HPARAM_GCN_LR
     
-    model.reset_parameters()
     optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 
-    # train model
+    # Train model and record best performance
+    best_epoch = 0
+    best_valid_score = 0
+    best_results = None
     for epoch in range(1, 1 + HPARAM_EPOCHS):
         loss = train(model, data, train_idx, optimizer)
 
@@ -200,18 +202,24 @@ def main(args):
             results = test(model, data, train_idx, valid_idx, test_idx)
             train_score, valid_score, test_score = [sum(score_lst) / len(score_lst) 
                                                   for score_lst in results]
-            print(f'Epoch: {epoch:02d}, Loss: {loss:.4f}, ' + \
-                  f'Train: {train_score:.4f}, ' + \
-                  f'Valid: {valid_score:.4f}, Test: {test_score:.4f}')
+            if valid_score > best_valid_score:
+                best_epoch = epoch
+                best_results = results
+                best_valid_score = valid_score
 
-    # final evaluation
-    results = test(model, data, train_idx, valid_idx, test_idx)
+            print(
+                f'Epoch: {epoch:4d}, Loss: {loss:.4f}, '
+                f'Train: {train_score:.4f},Valid: {valid_score:.4f}, '
+                f'Test: {test_score:.4f}, Best epoch so far: {best_epoch:4d}',
+            )
+
+    # Format final results
     result_df = pd.DataFrame()
-    result_df['Training score'], result_df['Validation score'], result_df['Testing score'] = results
+    result_df['Training score'], result_df['Validation score'], result_df['Testing score'] = best_results
     result_df['Task'] = list(label_ids)
     result_df['Dataset'], result_df['Network'], result_df['Method'] = dataset, network, method
 
-    # save or print results
+    # Save or print results
     if nooutput:
         print(result_df)
     else:
@@ -221,4 +229,3 @@ def main(args):
 if __name__ == "__main__":
     args = parse_args()
     main(args)
-
