@@ -162,7 +162,10 @@ sbatch eval_hcluster_all.sb
 # submit all evaluations for BlogCatalog and Wikipedia
 sbatch eval_realworld_networks.sb
 
-# submit all evaluations for gene classifications using node2vec(+)
+# submit all evaluations for gene classifications using node2vec+
+sbatch eval_gene_classification_n2vplus.sb
+
+# submit all evaluations for gene classifications using node2vec
 sbatch eval_gene_classification_n2v.sb
 
 # submit all evaluations for gene classifications using GNNs
