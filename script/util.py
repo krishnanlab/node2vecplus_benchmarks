@@ -1,13 +1,24 @@
+import logging
 import os
+import os.path as osp
+import pathlib
 
 import numpy as np
 import numba
+import yaml
 from sklearn.metrics import average_precision_score
 
 from pecanpy import pecanpy
 from gensim.models import Word2Vec
 
 from common_var import *
+
+
+def config_logger():
+    """Configure logger using the config file."""
+    homedir = pathlib.Path(__file__).absolute().parent
+    with open(osp.join(homedir, "logging.yaml"), "r") as f:
+        logging.config.dictConfig(yaml.safe_load(f.read()))
 
 
 def check_dirs(dirs):
