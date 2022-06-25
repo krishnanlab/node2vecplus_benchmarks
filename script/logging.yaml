@@ -1,0 +1,15 @@
+version: 1
+disable_existing_loggers: false
+formatters:
+  defaultFormatter:
+    format: '[%(asctime)s][%(name)s][%(levelname)s] %(message)s'
+handlers:
+  defaultConsoleHandler:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: defaultFormatter
+loggers:
+  __main__:
+    level: INFO
+    handlers: [defaultConsoleHandler]
+    propagate: no
