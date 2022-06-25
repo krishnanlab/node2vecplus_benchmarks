@@ -1,0 +1,13 @@
+global
+adipose_tissue
+blood
+blood_vessel
+brain
+heart
+kidney
+liver
+lung
+muscle
+spleen
+testis
+thyroid_gland
