@@ -17,8 +17,13 @@ readarray -t tissues < annotated_tissues.txt
 tissue=${tissues[ID]}
 echo tissue=${tissue}
 
+if ((ID == 0)); then
+    # Queue conversion jobs
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID convert_npz.sb
+fi
+
+# Move to the HumanBase downloads directory
 cd ../../data/networks/humanbase/downloads
-# If ID is 0 then submit the next conversion (into npz) job arrays
 
 wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}_top.gz
 gunzip ${tissue}_top.gz
