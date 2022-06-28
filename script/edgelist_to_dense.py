@@ -17,6 +17,7 @@ def parse_args():
     parser.add_argument("-o", "--output", help="Full path to the output file", required=True)
     return parser.parse_args()
 
+
 def main():
     args = parse_args()
     logger.info(args)
@@ -26,6 +27,7 @@ def main():
 
     logger.info(f"Saving dense array to {args.output}")
     g.save_npz(args.output, key_map={"adj": "data", "node_ids": "IDs"})
+
 
 if __name__ == "__main__":
     main()
