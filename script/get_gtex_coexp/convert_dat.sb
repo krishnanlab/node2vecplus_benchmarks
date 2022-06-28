@@ -1,0 +1,25 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -C lac
+#SBATCH -A wang-krishnan
+#SBATCH --mem=4GB
+#SBATCH -t 48:00:00
+#SBATCH --array=0-11
+#SBATCH -J convert_gtx_dat
+#SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
+
+module use /mnt/research/compbio/krishnanlab/modules/
+module load log4cpp sleipnir
+
+cd $SLURM_SUBMIT_DIR
+ID=$SLURM_ARRAY_TASK_ID
+
+readarray -t tissues < annotated_tissues.txt
+tissue=${tissues[ID]}
+
+# If ID is 0 then submit the next conversion (into npz) job arrays
+
+cd ../../data/networks/gtexcoexp/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks
+time Dat2Dab -i ${tissue}.dab -o ${tissue}.dat
