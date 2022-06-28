@@ -7,7 +7,7 @@
 #SBATCH --mem=16GB
 #SBATCH -t 3:55:00
 #SBATCH --array=0-12  # 12 annotated tissues (+1 global)
-#SBATCH -J download_humanbase
+#SBATCH -J download_hb
 #SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
 
 cd $SLURM_SUBMIT_DIR
