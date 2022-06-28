@@ -1,0 +1,32 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -C lac
+#SBATCH -A hirn
+#SBATCH --mem=16GB
+#SBATCH -t 3:55:00
+#SBATCH --array=0-12  # 12 annotated tissues (+1 global)
+#SBATCH -J download_humanbase
+#SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
+
+cd $SLURM_SUBMIT_DIR
+ID=$SLURM_ARRAY_TASK_ID
+
+readarray -t tissues < annotated_tissues.txt
+tissue=${tissues[ID]}
+echo tissue=${tissue}
+
+if ((ID == 0)); then
+    # Queue conversion jobs
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID convert_npz.sb
+fi
+
+# Move to the HumanBase downloads directory
+cd ../../data/networks/humanbase/downloads
+
+wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}_top.gz
+gunzip ${tissue}_top.gz
+
+wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}.gz
+gunzip ${tissue}.gz
