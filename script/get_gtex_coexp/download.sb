@@ -1,0 +1,20 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -C lac
+#SBATCH -A wang-krishnan
+#SBATCH --mem=64GB
+#SBATCH -t 3:55:00
+#SBATCH -J download_gtx
+#SBATCH -o ../../slurm_history/slurm-%x-%A.out
+
+cd $SLURM_SUBMIT_DIR
+cd ../../data/networks/gtexcoexp/downloads/
+
+# Download data from zenodo and unzip
+wget https://zenodo.org/record/5510567/files/GTEx_CTF-Pearson-CLR_coexpression_networks.zip
+unzip GTEx_CTF-Pearson-CLR_coexpression_networks.zip && rm -f GTEx_CTF-Pearson-CLR_coexpression_networks.zip
+
+# Submit dab-to-dat data conversion jobs
+sbatch convert_dat.sb
