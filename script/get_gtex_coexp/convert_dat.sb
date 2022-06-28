@@ -19,7 +19,10 @@ ID=$SLURM_ARRAY_TASK_ID
 readarray -t tissues < annotated_tissues.txt
 tissue=${tissues[ID]}
 
-# If ID is 0 then submit the next conversion (into npz) job arrays
+if ((ID == 0)); then
+    # Queue dat-to-npz conversion jobs
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID convert_npz.sb
+fi
 
 cd ../../data/networks/gtexcoexp/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks
 time Dat2Dab -i ${tissue}.dab -o ${tissue}.dat
