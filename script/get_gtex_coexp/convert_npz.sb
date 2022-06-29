@@ -1,0 +1,28 @@
+#!/bin/bash --login
+
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -C lac
+#SBATCH -A hirn
+#SBATCH --mem=64GB
+#SBATCH -t 3:55:00
+#SBATCH --array=0-11
+#SBATCH -J convert_gtx_npz
+#SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
+
+datadir=/mnt/research/compbio/krishnanlab/projects/node2vecplus_benchmarks/data/networks/gtexcoexp
+
+conda activate nle-dev
+
+cd $SLURM_SUBMIT_DIR
+ID=$SLURM_ARRAY_TASK_ID
+
+readarray -t tissues < annotated_tissues.txt
+tissue=${tissues[ID]}
+echo tissue=${tissue}
+
+cd ..
+
+python edgelist_to_dense.py \
+    -i ${datadir}/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks/${tissue}.dat \
+    -o ${datadir}/${tissue}.npz
