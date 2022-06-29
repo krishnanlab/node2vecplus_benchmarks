@@ -1,7 +1,7 @@
 """Convert edge list files to dense numpy array for faster loading."""
 import argparse
 import logging
-from typing import Dict, List, Tuple
+from typing import Dict, Tuple
 
 import mygene
 import numpy as np
@@ -20,30 +20,39 @@ def parse_args():
     return parser.parse_args()
 
 
-def get_entrez_conversion(genes: Tuple[str, ...]) -> Tuple[Dict[str, str], List[str]]:
+def get_entrez_conversion(genes: Tuple[str, ...]) -> Dict[str, str]:
+    """Gene ID to entrez ID conversion.
+
+    Note:
+        A gene ID _may_ be mapped to multiple entrez ID and vice versa. Only
+        gene IDs that are bijectively mapped to entrez IDs are used.
+
+    """
     # Query mapping from gene IDs to entrez IDs
     mg = mygene.MyGeneInfo()
     df = mg.getgenes(genes, fields="entrezgene", as_dataframe=1, species="human")
-    df = df[~df.entrezgene.isna()]
-    id_to_entrez = dict(zip(df.index, df.entrezgene))
-    entrez_to_id = dict(zip(df.entrezgene, df.index))
-    logger.info(f"Converting gene IDs to entrez, {df.shape[0]:,} (out of {len(genes):,}) found.")
+    df = df[~df.entrezgene.isna()]  # only keep genes with entrez IDs
 
-    # Exclude gene if multiple IDs are mapped to the same entrez ID
-    entrez_genes = (df.entrezgene.value_counts() == 1).index.tolist()
-    gene_ids = list(map(entrez_to_id.get, entrez_genes))
-    logger.info(f"{len(gene_ids):,} (out of {df.shape[0]:,}) mapped, excluding low quality map.")
+    # Only preserve one-to-one mappings
+    df = (
+        df
+        .reset_index()
+        .drop_duplicates(subset="query", keep=False)
+        .drop_duplicates(subset="entrezgene", keep=False)
+    )
+    id_to_entrez = dict(zip(df["query"].astype(str), df.entrezgene.astype(str)))
+    logger.info(f"Converting gene IDs to entrez, {df.shape[0]:,} (out of {len(genes):,}) mapped.")
 
-    return id_to_entrez, gene_ids
+    return id_to_entrez
 
 
 def process_graph(g: DenseGraph) -> DenseGraph:
     """Obtain the largest component induced by mapped entrez genes."""
-    id_to_entrez, gene_ids = get_entrez_conversion(g.node_ids)
+    id_to_entrez = get_entrez_conversion(g.node_ids)
 
     # Take largest component in the induced subgraph and reassign entrez
     g.log_level = "INFO"
-    g = g.induced_subgraph(gene_ids).largest_connected_subgraph()
+    g = g.induced_subgraph(list(id_to_entrez)).largest_connected_subgraph()
     g = DenseGraph.from_mat(g.mat, list(map(id_to_entrez.get, g.node_ids)))
 
     return g
