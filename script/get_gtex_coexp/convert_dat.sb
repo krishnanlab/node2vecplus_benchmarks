@@ -6,7 +6,7 @@
 #SBATCH -A wang-krishnan
 #SBATCH --mem=4GB
 #SBATCH -t 48:00:00
-#SBATCH --array=0-11
+#SBATCH --array=0-5
 #SBATCH -J convert_gtx_dat
 #SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
 
@@ -21,7 +21,7 @@ echo datadir=$datadir
 cd $homedir
 ID=$SLURM_ARRAY_TASK_ID
 
-readarray -t tissues < annotated_tissues.txt
+readarray -t tissues < valid_annotated_tissues.txt
 tissue=${tissues[ID]}
 
 if ((ID == 0)); then
