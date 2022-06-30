@@ -107,25 +107,15 @@ def test(model, data, train_idx, valid_idx, test_idx):
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run evaluation for gene classification using GNN",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument('--network', required=True,
-        help="Name of the protein protein interaction network")
-
-    parser.add_argument('--dataset', required=True,
-        help="Name of geneset collection")
-
-    parser.add_argument('--device', type=int, default=0,
-        help="Device number indicating which GPU to use, default is 0")
-
-    parser.add_argument('--nooutput', action='store_true',
-        help="Disable output if specified, and print results to screen")
-
-    parser.add_argument('--use_sage', action='store_true',
-        help="Use GraphSAGE instead of GCN, defulat is using GCN")
-
-    parser.add_argument('--test', action='store_true',
-        help="Toggle test mode, run with fewer epochs")
+    parser.add_argument("--network", required=True, help="Name of the protein protein interaction network")
+    parser.add_argument("--dataset", required=True, help="Name of geneset collection")
+    parser.add_argument("--device", type=int, default=0, help="Device number indicating which GPU to use, default is 0")
+    parser.add_argument("--nooutput", action="store_true", help="Disable output if specified, and print results to screen")
+    parser.add_argument("--use_sage", action="store_true", help="Use GraphSAGE instead of GCN, defulat is using GCN")
+    parser.add_argument("--test", action="store_true", help="Toggle test mode, run with fewer epochs")
 
     args = parser.parse_args()
     print(args)
@@ -165,8 +155,8 @@ def main(args):
     nooutput = args.nooutput
     device = args.device
     use_sage = args.use_sage
-    device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
-    method = 'sage' if use_sage else 'gcn'
+    device = f"cuda:{device}" if torch.cuda.is_available() else "cpu"
+    method = "sage" if use_sage else "gcn"
 
     if args.test:
         HPARAM_EPOCHS = 100
@@ -208,16 +198,16 @@ def main(args):
                 best_valid_score = valid_score
 
             print(
-                f'Epoch: {epoch:4d}, Loss: {loss:.4f}, '
-                f'Train: {train_score:.4f},Valid: {valid_score:.4f}, '
-                f'Test: {test_score:.4f}, Best epoch so far: {best_epoch:4d}',
+                f"Epoch: {epoch:4d}, Loss: {loss:.4f}, "
+                f"Train: {train_score:.4f}, Valid: {valid_score:.4f}, "
+                f"Test: {test_score:.4f}, Best epoch so far: {best_epoch:4d}",
             )
 
     # Format final results
     result_df = pd.DataFrame()
-    result_df['Training score'], result_df['Validation score'], result_df['Testing score'] = best_results
-    result_df['Task'] = list(label_ids)
-    result_df['Dataset'], result_df['Network'], result_df['Method'] = dataset, network, method
+    result_df["Training score"], result_df["Validation score"], result_df["Testing score"] = best_results
+    result_df["Task"] = list(label_ids)
+    result_df["Dataset"], result_df["Network"], result_df["Method"] = dataset, network, method
 
     # Save or print results
     if nooutput:
