@@ -24,8 +24,12 @@ readarray -t tissues < valid_annotated_tissues.txt
 tissue=${tissues[ID]}
 echo tissue=${tissue}
 
+readarray -t tissues_converted < valid_annotated_tissues_converted.txt
+tissue_converted=${tissues_converted[ID]}
+echo tissue_converted=${tissue_converted}
+
 cd ..
 
 python edgelist_to_dense.py \
     -i ${datadir}/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks/${tissue}.dat \
-    -o ${datadir}/${tissue}.npz
+    -o ${datadir}/GTExCoExp-${tissue_converted}.npz
