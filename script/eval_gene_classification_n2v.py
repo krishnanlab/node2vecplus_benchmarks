@@ -18,7 +18,7 @@ LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
 check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR])
 
-DATASET_LIST = ['GOBP', 'DisGeNet']
+DATASETS = ["GOBP", "DisGeNet"]
 
 ###DEFAULT HYPER PARAMS###
 HPARAM_DIM = 128
@@ -28,31 +28,17 @@ HPARAM_DIM = 128
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run evaluation on gene classification datasets",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument("--network", required=True,
-        help="Name of hierarchical cluster graph to use")
-
-    parser.add_argument("--p", required=True, type=float,
-        help="return bias parameter p")
-
-    parser.add_argument("--q", required=True, type=float,
-        help="in-out bias parameter q")
-
-    parser.add_argument("--extend", action="store_true",
-        help="Use node2vec+ if specified, otherwise use node2vec")
-
-    parser.add_argument("--gamma", type=float, default=0,
-        help="Noisy edge threshold parameter.")
-
-    parser.add_argument("--nooutput", action='store_true',
-        help="Disable output if specified, and print results to screen")
-
-    parser.add_argument("--random_state", type=int, default=0,
-        help="Random state used for generating random splits")
-
-    parser.add_argument('--test', action='store_true',
-        help="Toggle test mode, run with more workers")
+    parser.add_argument("--network", required=True, help="Name of hierarchical cluster graph to use")
+    parser.add_argument("--p", required=True, type=float, help="return bias parameter p")
+    parser.add_argument("--q", required=True, type=float, help="in-out bias parameter q")
+    parser.add_argument("--extend", action="store_true", help="Use node2vec+ if specified, otherwise use node2vec")
+    parser.add_argument("--gamma", type=float, default=0, help="Noisy edge threshold parameter.")
+    parser.add_argument("--nooutput", action="store_true", help="Disable output if specified, and print results to screen")
+    parser.add_argument("--random_state", type=int, default=0, help="Random state used for generating random splits")
+    parser.add_argument("--test", action="store_true", help="Toggle test mode, run with more workers")
 
     args = parser.parse_args()
     print(args)
@@ -70,15 +56,15 @@ def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     # train and evaluate predictions for each task
     score_lists = [], [], []
     for task_idx in range(n_tasks):
-        mdl = LogisticRegression(penalty='l2', solver='liblinear', max_iter=500)
+        mdl = LogisticRegression(penalty="l2", solver="liblinear", max_iter=500)
         mdl.fit(X_emd[train_idx], y[train_idx, task_idx])
 
         for score_list, idx in zip(score_lists, train_valid_test_idx):
             score_list.append(score_func(y[idx, task_idx], mdl.decision_function(X_emd[idx])))
 
     df = pd.DataFrame()
-    df['Training score'], df['Validation score'], df['Testing score'] = score_lists
-    df['Task'] = list(label_ids)
+    df["Training score"], df["Validation score"], df["Testing score"] = score_lists
+    df["Task"] = list(label_ids)
     for name, val in df_info.items():
         df[name] = val
 
@@ -104,7 +90,7 @@ def evaluate(args):
     except ValueError:
         pass
 
-    method = 'Node2vec+' if extend else 'Node2vec'
+    method = "Node2vec+" if extend else "Node2vec"
     network_fp = f"{NETWORK_DIR}/{network}.npz"
     output_fn = f"{network}_n2v{'plus' if extend else ''}_{p=}_{q=}_{gamma=}.csv"
 
@@ -117,21 +103,21 @@ def evaluate(args):
     # Run evaluation on all datasets
     t = time()
     result_df_list = []
-    for dataset in DATASET_LIST:
+    for dataset in DATASETS:
         label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
 
-        df_info = {'Dataset': dataset, 'Network': network, 'Method': method,
-                   'p': p, 'q': q, 'gamma': gamma}
+        df_info = {"Dataset": dataset, "Network": network, "Method": method,
+                   "p": p, "q": q, "gamma": gamma}
         df = _evaluate(X_emd, IDs, label_fp, random_state, df_info)
         result_df_list.append(df)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to evaluate")
 
     # combine results into a single dataframe
-    result_df = pd.concat(result_df_list).sort_values('Task')
+    result_df = pd.concat(result_df_list).sort_values("Task")
 
     # Print results summary (and save)
-    print(result_df[['Training score', 'Validation score', 'Testing score']].describe())
+    print(result_df[["Training score", "Validation score", "Testing score"]].describe())
     if not nooutput:
         output_dir = N2VPLUS_OUTPUT_DIR if extend else N2V_OUTPUT_DIR
         output_fp = f"{output_dir}/{output_fn}"
@@ -143,5 +129,5 @@ def main():
     evaluate(args)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
