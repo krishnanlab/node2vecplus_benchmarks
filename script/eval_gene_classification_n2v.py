@@ -13,7 +13,6 @@ from util import *
 
 N2V_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
 N2VPLUS_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2vplus"
-NETWORK_DIR = f"{DATA_DIR}/networks/ppi"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
 check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR])
@@ -69,18 +68,6 @@ def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
         df[name] = val
 
     return df
-
-
-def get_network_fp(network: str):
-    """Get the path fo the network file under data/networks/ppi"""
-    filename = f"{network}.npz"
-    for path, _, files in os.walk(NETWORK_DIR):
-        if filename in files:
-            filepath = os.path.join(path, filename)
-            print(f"Found network at {filepath}")
-            return filepath
-    else:
-        raise FileNotFoundError(f"Cannot locate {filename}")
 
 
 def evaluate(args):

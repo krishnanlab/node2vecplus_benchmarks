@@ -6,10 +6,9 @@ import pathlib
 import numpy as np
 import numba
 import yaml
-from sklearn.metrics import average_precision_score
-
-from pecanpy import pecanpy
 from gensim.models import Word2Vec
+from pecanpy import pecanpy
+from sklearn.metrics import average_precision_score
 
 from common_var import *
 
@@ -28,6 +27,18 @@ def check_dirs(dirs):
             os.makedirs(directory)
         except FileExistsError:
             pass
+
+
+def get_network_fp(network: str):
+    """Get the path fo the network file under data/networks/ppi"""
+    filename = f"{network}.npz"
+    for path, _, files in os.walk(NETWORK_DIR):
+        if filename in files:
+            filepath = os.path.join(path, filename)
+            print(f"Found network at {filepath}")
+            return filepath
+    else:
+        raise FileNotFoundError(f"Cannot locate {filename}")
 
 
 def score_func(y_true, y_pred):
