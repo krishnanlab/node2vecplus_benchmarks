@@ -25,17 +25,22 @@ HBGTX_NETWORK_PATHS = (
 
 DATASETS = ["GOBP", "DisGeNet"]
 
-MIN_NUM_POS = 10  # minimum number of positives per split
 SPLIT_RATIOS = (0.6, 0.2, 0.2)  # train/val/test split ratios
 
 
-def filter_lsc(network_paths: Union[str, List[str]], name: str, dataset: str):
+def filter_lsc(
+    network_paths: Union[str, List[str]],
+    name: str,
+    dataset: str,
+    min_num_pos: int = 10,
+):
     """Filter label set collection using network genes.
 
     Args:
         network_paths: Path(s) to the network(s).
         name: Name of the network genes.
         dataset: Name of the dataset.
+        min_num_pos: Mimimum number of positives per split
 
     """
     # Load netowrk genes
@@ -51,7 +56,7 @@ def filter_lsc(network_paths: Union[str, List[str]], name: str, dataset: str):
 
     # Apply (study-bias holdout) split size filtering
     splitter = RatioPartition(*SPLIT_RATIOS, ascending=False)
-    split_filter = filters.LabelsetRangeFilterSplit(MIN_NUM_POS, splitter, property_name="PubMed Count")
+    split_filter = filters.LabelsetRangeFilterSplit(min_num_pos, splitter, property_name="PubMed Count")
     lsc.iapply(split_filter, progress_bar=True)
 
     # Generate label and masks
@@ -73,9 +78,13 @@ def filter_lsc(network_paths: Union[str, List[str]], name: str, dataset: str):
 
 
 def main():
+    # Tissue naive gene classification evaluation
     for dataset in DATASETS:
-        filter_lsc(STRING_NETWORK_PATH, "STRING", dataset)
-        filter_lsc(HBGTX_NETWORK_PATHS, "HBGTX", dataset)
+        filter_lsc(STRING_NETWORK_PATH, "STRING", dataset, min_num_pos=10)
+        filter_lsc(HBGTX_NETWORK_PATHS, "HBGTX", dataset, min_num_pos=10)
+
+    # Tissue specific GOBP terms, evaluate using HumanBase and GTEx coexpression
+    filter_lsc(HBGTX_NETWORK_PATHS, "HBGTX", "GOBP-tissue", min_num_pos=5)
 
 
 if __name__ == "__main__":
