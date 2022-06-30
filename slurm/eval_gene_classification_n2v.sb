@@ -9,11 +9,13 @@
 
 cd $SLURM_SUBMIT_DIR
 
-networks=(STRING GIANT-TN GIANT-TN-c01)
+networks=(STRING HumanBase-global HumanBaseTop-global)
+gene_universes=(STRING HBGTX HBGTX)
 pqs=(0.01 0.05 0.1 0.5 1 5 10 50 100)
 
 ID=$SLURM_ARRAY_TASK_ID
 network=${networks[$(expr $ID % 3)]}
+gene_universe=${gene_universes[$(expr $ID % 3)]}
 p=${pqs[$(expr $ID / 3 % 9)]}
 q=${pqs[$(expr $ID / 3 / 9)]}
 
@@ -24,4 +26,4 @@ fi
 
 cd ../script
 conda activate node2vecplus-bench
-time python eval_gene_classification_n2v.py --network $network --p $p --q $q
+time python eval_gene_classification_n2v.py --gene_universe $gene_universe --network $network --p $p --q $q
