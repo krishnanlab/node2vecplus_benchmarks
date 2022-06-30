@@ -10,7 +10,7 @@
 #SBATCH -o ../../slurm_history/slurm-%x-%A.out
 
 cd $SLURM_SUBMIT_DIR
-cd ../../data/networks/gtexcoexp/downloads/
+cd ../../data/networks/ppi/gtexcoexp/downloads/
 
 # Download data from zenodo and unzip
 wget https://zenodo.org/record/5510567/files/GTEx_CTF-Pearson-CLR_coexpression_networks.zip

@@ -23,7 +23,7 @@ if ((ID == 0)); then
 fi
 
 # Move to the HumanBase downloads directory
-cd ../../data/networks/humanbase/downloads
+cd ../../data/networks/ppi/humanbase/downloads
 
 wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}_top.gz
 gunzip ${tissue}_top.gz

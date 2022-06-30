@@ -14,18 +14,19 @@ from common_var import DATA_DIR, LABEL_PATH_DICT, PUBMED_COUNT_PATH
 config_logger()
 logger = logging.getLogger(__name__)
 
-STRING_NETWORK_PATH = DATA_DIR / "networks/ppi/STRING.npz"
-HB_NETWORK_DIR = DATA_DIR / "networks/gtexcoexp"
-GTX_NETWORK_DIR = DATA_DIR / "networks/humanbase"
+PPI_DIR = DATA_DIR / "networks/ppi"
+STRING_NETWORK_PATH = PPI_DIR / "STRING.npz"
+HB_NETWORK_DIR = PPI_DIR / "gtexcoexp"
+GTX_NETWORK_DIR = PPI_DIR / "humanbase"
 HBGTX_NETWORK_PATHS = (
     os.popen(f"ls {HB_NETWORK_DIR}/*.npz").read().split()
     + os.popen(f"ls {GTX_NETWORK_DIR}/*.npz").read().split()
 )
 
+DATASETS = ["GOBP", "DisGeNet"]
+
 MIN_NUM_POS = 10  # minimum number of positives per split
 SPLIT_RATIOS = (0.6, 0.2, 0.2)  # train/val/test split ratios
-
-DATASETS = ["GOBP", "DisGeNet"]
 
 
 def filter_lsc(network_paths: Union[str, List[str]], name: str, dataset: str):

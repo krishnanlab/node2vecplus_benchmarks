@@ -10,11 +10,14 @@
 #SBATCH -J convert_hb_npz
 #SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
 
-datadir=/mnt/research/compbio/krishnanlab/projects/node2vecplus_benchmarks/data/networks/humanbase
-
 conda activate nle-dev
 
-cd $SLURM_SUBMIT_DIR
+homedir=$SLURM_SUBMIT_DIR
+datadir=$(dirname $(dirname $homedir))/data/networks/ppi/humanbase
+echo homedir=$homedir
+echo datadir=$datadir
+
+cd $homedir
 ID=$SLURM_ARRAY_TASK_ID
 
 readarray -t tissues < annotated_tissues.txt
