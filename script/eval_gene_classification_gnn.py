@@ -142,7 +142,7 @@ def load_data(network, dataset, use_sage, device):
     # load labels with splits and align node ids
     label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
-    align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
+    y, gene_ids = align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)
 
     # converting tor torch tensor
     y = torch.tensor(y)

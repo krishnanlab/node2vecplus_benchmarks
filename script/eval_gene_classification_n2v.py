@@ -49,7 +49,7 @@ def parse_args():
 def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     # load labels and study-bias holdout splits
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
-    align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)
+    y, gene_ids = align_gene_ids(IDs, y, train_idx, valid_idx, test_idx, gene_ids)
     train_valid_test_idx = train_idx, valid_idx, test_idx
     n_tasks = label_ids.size
 

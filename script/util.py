@@ -42,13 +42,19 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     # Train/val/test split stats before alignment
     old_stats = [y[idx].sum(0).tolist() for idx in [train_idx, valid_idx, test_idx]]
 
+    # Pad the label matrix if necessary (not all network genes are in the label
+    # matrix, but the converse must be true though)
+    missing_genes = set(adj_ids.tolist()) - set(gene_ids.tolist())
+    y = np.vstack((y, np.zeros((len(missing_genes), y.shape[1]))))
+    gene_ids = np.array(gene_ids.tolist() + list(missing_genes))
+
     # Map from id to index in the label split
     id_map = {j:i for i,j in enumerate(gene_ids)}
 
     # Index aligning label split ids to network node ids
     aligned_idx = np.array([id_map[i] for i in adj_ids])
 
-    # Align data
+    # Align label genes with network genes
     y[:] = y[aligned_idx]
     gene_ids[:] = gene_ids[aligned_idx]
 
@@ -65,6 +71,8 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     # Check to see if the alignment is correct
     assert adj_ids.tolist() == gene_ids.tolist()
     assert old_stats == new_stats
+
+    return y, gene_ids
 
 
 
