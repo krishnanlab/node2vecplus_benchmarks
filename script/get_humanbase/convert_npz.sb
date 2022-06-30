@@ -6,18 +6,21 @@
 #SBATCH -A hirn
 #SBATCH --mem=64GB
 #SBATCH -t 3:55:00
-#SBATCH --array=0-12  # 12 annotated tissues (+1 global)
+#SBATCH --array=0-6  # 6 valid annotated tissues (+1 global)
 #SBATCH -J convert_hb_npz
 #SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
 
-datadir=/mnt/research/compbio/krishnanlab/projects/node2vecplus_benchmarks/data/networks/humanbase
-
 conda activate nle-dev
 
-cd $SLURM_SUBMIT_DIR
+homedir=$SLURM_SUBMIT_DIR
+datadir=$(dirname $(dirname $homedir))/data/networks/ppi/humanbase
+echo homedir=$homedir
+echo datadir=$datadir
+
+cd $homedir
 ID=$SLURM_ARRAY_TASK_ID
 
-readarray -t tissues < annotated_tissues.txt
+readarray -t tissues < valid_annotated_tissues.txt
 tissue=${tissues[ID]}
 echo tissue=${tissue}
 

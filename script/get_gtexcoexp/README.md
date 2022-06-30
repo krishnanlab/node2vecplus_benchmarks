@@ -1,6 +1,7 @@
 Files
 * `tissues.txt` - all gtex coexpression dab files
 * `annotated_tissues.txt` - selected files that have corresponding GO tasks (from OhmNet)
+* `valid_annotated_tissues.txt` - same as the above but only for those that have sufficient (n>=5) number of positives per split
 
 Scripts
 * `run.sh` - main run script

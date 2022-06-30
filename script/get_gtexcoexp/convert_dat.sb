@@ -6,17 +6,22 @@
 #SBATCH -A wang-krishnan
 #SBATCH --mem=4GB
 #SBATCH -t 48:00:00
-#SBATCH --array=0-11
+#SBATCH --array=0-5
 #SBATCH -J convert_gtx_dat
 #SBATCH -o ../../slurm_history/slurm-%x-%A_%a.out
 
 module use /mnt/research/compbio/krishnanlab/modules/
 module load log4cpp sleipnir
 
-cd $SLURM_SUBMIT_DIR
+homedir=$SLURM_SUBMIT_DIR
+datadir=$(dirname $(dirname $homedir))/data/networks/ppi/gtexcoexp/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks
+echo homedir=$homedir
+echo datadir=$datadir
+
+cd $homedir
 ID=$SLURM_ARRAY_TASK_ID
 
-readarray -t tissues < annotated_tissues.txt
+readarray -t tissues < valid_annotated_tissues.txt
 tissue=${tissues[ID]}
 
 if ((ID == 0)); then
@@ -24,5 +29,5 @@ if ((ID == 0)); then
     sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID convert_npz.sb
 fi
 
-cd ../../data/networks/gtexcoexp/downloads/GTEx_CTF-Pearson-CLR_coexpression_networks
+cd $datadir
 time Dat2Dab -i ${tissue}.dab -o ${tissue}.dat
