@@ -110,6 +110,7 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    parser.add_argument("--gene_universe", required=True, help="Name of the gene universe")
     parser.add_argument("--network", required=True, help="Name of the protein protein interaction network")
     parser.add_argument("--dataset", required=True, help="Name of geneset collection")
     parser.add_argument("--device", type=int, default=0, help="Device number indicating which GPU to use, default is 0")
@@ -123,14 +124,14 @@ def parse_args():
     return args
 
 
-def load_data(network, dataset, use_sage, device):
+def load_data(gene_universe, network, dataset, use_sage, device):
     # load network
-    network_fp = f"{NETWORK_DIR}/{network}.npz"
+    network_fp = get_network_fp(network)
     adj_mat, adj_ids = np.load(network_fp).values()
     adj = torch.tensor(adj_mat).float() # dense adj
 
     # load labels with splits and align node ids
-    label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
+    label_fp = f"{LABEL_DIR}/{gene_universe}_{dataset}_label_split.npz"
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
     y, gene_ids = align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)
 
@@ -150,6 +151,7 @@ def load_data(network, dataset, use_sage, device):
 
 
 def main(args):
+    gene_universe = args.gene_universe
     network = args.network
     dataset = args.dataset
     nooutput = args.nooutput
@@ -166,7 +168,7 @@ def main(args):
         EVAL_STEPS = 100
 
     # load and constructing data object
-    adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(network, dataset, use_sage, device)
+    adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(gene_universe, network, dataset, use_sage, device)
     data = Data(x=x, y=y)
     data.adj = adj
     data = data.to(device)
