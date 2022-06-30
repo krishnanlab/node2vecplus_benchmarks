@@ -1,3 +1,4 @@
+global
 blood
 blood_vessel
 brain
