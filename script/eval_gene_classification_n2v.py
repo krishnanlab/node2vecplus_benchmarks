@@ -31,6 +31,7 @@ def parse_args():
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
     )
 
+    parser.add_argument("--gene_universe", required=True, help="Name of the gene universe")
     parser.add_argument("--network", required=True, help="Name of hierarchical cluster graph to use")
     parser.add_argument("--p", required=True, type=float, help="return bias parameter p")
     parser.add_argument("--q", required=True, type=float, help="in-out bias parameter q")
@@ -71,7 +72,20 @@ def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     return df
 
 
+def get_network_fp(network: str):
+    """Get the path fo the network file under data/networks/ppi"""
+    filename = f"{network}.npz"
+    for path, _, files in os.walk(NETWORK_DIR):
+        if filename in files:
+            filepath = os.path.join(path, filename)
+            print(f"Found network at {filepath}")
+            return filepath
+    else:
+        raise FileNotFoundError(f"Cannot locate {filename}")
+
+
 def evaluate(args):
+    gene_universe = args.gene_universe
     network = args.network
     extend = args.extend
     p = args.p
@@ -91,8 +105,8 @@ def evaluate(args):
         pass
 
     method = "Node2vec+" if extend else "Node2vec"
-    network_fp = f"{NETWORK_DIR}/{network}.npz"
     output_fn = f"{network}_n2v{'plus' if extend else ''}_{p=}_{q=}_{gamma=}.csv"
+    network_fp = get_network_fp(network)
 
     # Generate embeddings
     t = time()
@@ -104,7 +118,7 @@ def evaluate(args):
     t = time()
     result_df_list = []
     for dataset in DATASETS:
-        label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
+        label_fp = f"{LABEL_DIR}/{gene_universe}_{dataset}_label_split.npz"
 
         df_info = {"Dataset": dataset, "Network": network, "Method": method,
                    "p": p, "q": q, "gamma": gamma}
