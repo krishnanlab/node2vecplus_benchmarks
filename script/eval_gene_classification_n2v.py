@@ -18,8 +18,6 @@ LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
 check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR])
 
-DATASETS = ["GOBP", "DisGeNet"]
-
 ###DEFAULT HYPER PARAMS###
 HPARAM_DIM = 128
 ##########################
@@ -33,6 +31,7 @@ def parse_args():
 
     parser.add_argument("--gene_universe", required=True, help="Name of the gene universe")
     parser.add_argument("--network", required=True, help="Name of hierarchical cluster graph to use")
+    parser.add_argument("--task", default="standard", help="'standard': GOBP, DisGeNet or 'tissue': GOBP-tissue")
     parser.add_argument("--p", required=True, type=float, help="return bias parameter p")
     parser.add_argument("--q", required=True, type=float, help="in-out bias parameter q")
     parser.add_argument("--extend", action="store_true", help="Use node2vec+ if specified, otherwise use node2vec")
@@ -94,6 +93,11 @@ def evaluate(args):
     random_state = args.random_state
     nooutput = args.nooutput
 
+    if args.task == "standard":
+        datasets = ["GOBP", "DisGeNet"]
+    elif args.task == "tissue":
+        datasets = ["GOBP-tissue"]
+
     if args.test:
         NUM_THREADS = 128
     else:
@@ -117,7 +121,7 @@ def evaluate(args):
     # Run evaluation on all datasets
     t = time()
     result_df_list = []
-    for dataset in DATASETS:
+    for dataset in datasets:
         label_fp = f"{LABEL_DIR}/{gene_universe}_{dataset}_label_split.npz"
 
         df_info = {"Dataset": dataset, "Network": network, "Method": method,

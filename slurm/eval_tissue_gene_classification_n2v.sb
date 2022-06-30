@@ -1,0 +1,51 @@
+#!/bin/bash --login
+
+#SBATCH -t 3:55:00
+#SBATCH -N 1
+#SBATCH -c 4
+#SBATCH --mem=16GB
+#SBATCH --array=0-99  # 20 networks, 5 q settings (5 p per job)
+#SBATCH -o ../slurm_history/slurm-%A-%a.out
+
+cd $SLURM_SUBMIT_DIR
+
+networks=(
+HumanBase-blood
+HumanBase-brain
+HumanBase-heart
+HumanBase-muscle
+HumanBaseTop-blood_vessel
+HumanBaseTop-global
+HumanBaseTop-kidney
+HumanBase-blood_vessel
+HumanBase-global
+HumanBase-kidney
+HumanBaseTop-blood
+HumanBaseTop-brain
+HumanBaseTop-heart
+HumanBaseTop-muscle
+GTExCoExp-blood
+GTExCoExp-blood_vessel
+GTExCoExp-brain
+GTExCoExp-heart
+GTExCoExp-kidney
+GTExCoExp-muscle
+)
+
+pqs=(0.01 0.1 1 10 100)
+
+ID=$SLURM_ARRAY_TASK_ID
+network=${networks[$(expr $ID % 20)]}
+q=${pqs[$(expr $ID / 20 / 9)]}
+
+if [ $ID == 0 ]; then 
+    # submit job for combining all results after all evaluation jobs are finished
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID combine_results.sb tissue_gene_classification_n2v
+fi
+
+cd ../script
+conda activate node2vecplus-bench
+for p in ${pqs[@]}; do
+    time python eval_gene_classification_n2v.py --task tissue \
+        --gene_universe HBGTX --network $network --p $p --q $q
+done
