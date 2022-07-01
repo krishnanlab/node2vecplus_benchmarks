@@ -107,25 +107,16 @@ def test(model, data, train_idx, valid_idx, test_idx):
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Run evaluation for gene classification using GNN",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
 
-    parser.add_argument('--network', required=True,
-        help="Name of the protein protein interaction network")
-
-    parser.add_argument('--dataset', required=True,
-        help="Name of geneset collection")
-
-    parser.add_argument('--device', type=int, default=0,
-        help="Device number indicating which GPU to use, default is 0")
-
-    parser.add_argument('--nooutput', action='store_true',
-        help="Disable output if specified, and print results to screen")
-
-    parser.add_argument('--use_sage', action='store_true',
-        help="Use GraphSAGE instead of GCN, defulat is using GCN")
-
-    parser.add_argument('--test', action='store_true',
-        help="Toggle test mode, run with fewer epochs")
+    parser.add_argument("--gene_universe", required=True, help="Name of the gene universe")
+    parser.add_argument("--network", required=True, help="Name of the protein protein interaction network")
+    parser.add_argument("--dataset", required=True, help="Name of geneset collection")
+    parser.add_argument("--device", type=int, default=0, help="Device number indicating which GPU to use, default is 0")
+    parser.add_argument("--nooutput", action="store_true", help="Disable output if specified, and print results to screen")
+    parser.add_argument("--use_sage", action="store_true", help="Use GraphSAGE instead of GCN, defulat is using GCN")
+    parser.add_argument("--test", action="store_true", help="Toggle test mode, run with fewer epochs")
 
     args = parser.parse_args()
     print(args)
@@ -133,16 +124,16 @@ def parse_args():
     return args
 
 
-def load_data(network, dataset, use_sage, device):
+def load_data(gene_universe, network, dataset, use_sage, device):
     # load network
-    network_fp = f"{NETWORK_DIR}/{network}.npz"
+    network_fp = get_network_fp(network)
     adj_mat, adj_ids = np.load(network_fp).values()
     adj = torch.tensor(adj_mat).float() # dense adj
 
     # load labels with splits and align node ids
-    label_fp = f"{LABEL_DIR}/{network}_{dataset}_label_split.npz"
+    label_fp = f"{LABEL_DIR}/{gene_universe}_{dataset}_label_split.npz"
     y, train_idx, valid_idx, test_idx, label_ids, gene_ids = np.load(label_fp).values()
-    align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)  # align node ids
+    y, gene_ids = align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids)
 
     # converting tor torch tensor
     y = torch.tensor(y)
@@ -160,13 +151,14 @@ def load_data(network, dataset, use_sage, device):
 
 
 def main(args):
+    gene_universe = args.gene_universe
     network = args.network
     dataset = args.dataset
     nooutput = args.nooutput
     device = args.device
     use_sage = args.use_sage
-    device = f'cuda:{device}' if torch.cuda.is_available() else 'cpu'
-    method = 'sage' if use_sage else 'gcn'
+    device = f"cuda:{device}" if torch.cuda.is_available() else "cpu"
+    method = "sage" if use_sage else "gcn"
 
     if args.test:
         HPARAM_EPOCHS = 100
@@ -176,7 +168,7 @@ def main(args):
         EVAL_STEPS = 100
 
     # load and constructing data object
-    adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(network, dataset, use_sage, device)
+    adj, x, y, train_idx, valid_idx, test_idx, label_ids= load_data(gene_universe, network, dataset, use_sage, device)
     data = Data(x=x, y=y)
     data.adj = adj
     data = data.to(device)
@@ -208,16 +200,16 @@ def main(args):
                 best_valid_score = valid_score
 
             print(
-                f'Epoch: {epoch:4d}, Loss: {loss:.4f}, '
-                f'Train: {train_score:.4f},Valid: {valid_score:.4f}, '
-                f'Test: {test_score:.4f}, Best epoch so far: {best_epoch:4d}',
+                f"Epoch: {epoch:4d}, Loss: {loss:.4f}, "
+                f"Train: {train_score:.4f}, Valid: {valid_score:.4f}, "
+                f"Test: {test_score:.4f}, Best epoch so far: {best_epoch:4d}",
             )
 
     # Format final results
     result_df = pd.DataFrame()
-    result_df['Training score'], result_df['Validation score'], result_df['Testing score'] = best_results
-    result_df['Task'] = list(label_ids)
-    result_df['Dataset'], result_df['Network'], result_df['Method'] = dataset, network, method
+    result_df["Training score"], result_df["Validation score"], result_df["Testing score"] = best_results
+    result_df["Task"] = list(label_ids)
+    result_df["Dataset"], result_df["Network"], result_df["Method"] = dataset, network, method
 
     # Save or print results
     if nooutput:

@@ -6,10 +6,9 @@ import pathlib
 import numpy as np
 import numba
 import yaml
-from sklearn.metrics import average_precision_score
-
-from pecanpy import pecanpy
 from gensim.models import Word2Vec
+from pecanpy import pecanpy
+from sklearn.metrics import average_precision_score
 
 from common_var import *
 
@@ -30,6 +29,18 @@ def check_dirs(dirs):
             pass
 
 
+def get_network_fp(network: str):
+    """Get the path fo the network file under data/networks/ppi"""
+    filename = f"{network}.npz"
+    for path, _, files in os.walk(NETWORK_DIR):
+        if filename in files:
+            filepath = os.path.join(path, filename)
+            print(f"Found network at {filepath}")
+            return filepath
+    else:
+        raise FileNotFoundError(f"Cannot locate {filename}")
+
+
 def score_func(y_true, y_pred):
     y_true, y_pred = np.array(y_true), np.array(y_pred)
     prior = y_true.sum() / y_true.size
@@ -42,13 +53,19 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     # Train/val/test split stats before alignment
     old_stats = [y[idx].sum(0).tolist() for idx in [train_idx, valid_idx, test_idx]]
 
+    # Pad the label matrix if necessary (not all network genes are in the label
+    # matrix, but the converse must be true though)
+    missing_genes = set(adj_ids.tolist()) - set(gene_ids.tolist())
+    y = np.vstack((y, np.zeros((len(missing_genes), y.shape[1]))))
+    gene_ids = np.array(gene_ids.tolist() + list(missing_genes))
+
     # Map from id to index in the label split
     id_map = {j:i for i,j in enumerate(gene_ids)}
 
     # Index aligning label split ids to network node ids
     aligned_idx = np.array([id_map[i] for i in adj_ids])
 
-    # Align data
+    # Align label genes with network genes
     y[:] = y[aligned_idx]
     gene_ids[:] = gene_ids[aligned_idx]
 
@@ -65,6 +82,8 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
     # Check to see if the alignment is correct
     assert adj_ids.tolist() == gene_ids.tolist()
     assert old_stats == new_stats
+
+    return y, gene_ids
 
 
 

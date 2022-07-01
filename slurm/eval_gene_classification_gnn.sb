@@ -10,11 +10,13 @@
 
 cd $SLURM_SUBMIT_DIR
 
-networks=(STRING GIANT-TN GIANT-TN-c01)
+networks=(STRING HumanBase-global HumanBaseTop-global)
+gene_universes=(STRING HBGTX HBGTX)
 datasets=(GOBP DisGeNet)
 
 ID=$SLURM_ARRAY_TASK_ID
 network=${networks[$(expr $ID % 3)]}
+gene_universe=${gene_universes[$(expr $ID % 3)]}
 dataset=${datasets[$(expr $ID / 3 % 2)]}
 flag=$(expr $ID / 3 / 2)
 
@@ -30,9 +32,9 @@ echo "ID = ${ID}, network = ${network}, dataset = ${dataset}, flag = ${flag}"
 
 if [ $flag == 0 ]; then
     # evaluate GCN
-    time python eval_gene_classification_gnn.py --network $network --dataset $dataset
+    time python eval_gene_classification_gnn.py --gene_universe $gene_universe --network $network --dataset $dataset
 else
     # evaluate GraphSAGE
-    time python eval_gene_classification_gnn.py --network $network --dataset $dataset --use_sage
+    time python eval_gene_classification_gnn.py --gene_universe $gene_universe --network $network --dataset $dataset --use_sage
 fi
 

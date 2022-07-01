@@ -3,6 +3,7 @@ import pathlib
 HOME_DIR = pathlib.Path(__file__).absolute().parents[1]
 DATA_DIR = HOME_DIR / "data"
 RESULT_DIR = HOME_DIR / "result"
+NETWORK_DIR = DATA_DIR / "networks"
 
 LABEL_PATH_DICT = {
     "DisGeNet": "/mnt/research/compbio/krishnanlab/data/disease-gene_annotations/disgenet/disgenet_disease-genes_prop.gsea-min10-max600-ovlppt7-jacpt5.nonred.gmt",

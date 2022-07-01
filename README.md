@@ -170,6 +170,12 @@ sbatch eval_gene_classification_n2v.sb
 
 # submit all evaluations for gene classifications using GNNs
 sbatch eval_gene_classification_gnn.sb
+
+# submit all evaluations for tissue-specific gene classifications using node2vec+
+sbatch eval_tissue_gene_classification_n2vplus.sb
+
+# submit all evaluations for tissue-specific gene classifications using node2vec
+sbatch eval_tissue_gene_classification_n2v.sb
 ```
 
 Or submitting all evaluations above by simply running

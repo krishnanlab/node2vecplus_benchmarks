@@ -6,6 +6,8 @@ cd slurm
 sbatch -C amd20 eval_hcluster_all.sb
 sbatch -C amd20 eval_gene_classification_n2vplus.sb
 sbatch -C amd20 eval_gene_classification_n2v.sb
+sbatch -C amd20 eval_gene_tissue_classification_n2vplus.sb
+sbatch -C amd20 eval_gene_tissue_classification_n2v.sb
 sbatch -C amd20 eval_realworld_networks.sb
 
 # submit job with no specifications
