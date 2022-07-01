@@ -13,9 +13,11 @@ from util import *
 
 N2V_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
 N2VPLUS_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2vplus"
+N2V_TISSUE_OUTPUT_DIR = f"{RESULT_DIR}/tissue_gene_classification_n2v"
+N2VPLUS_TISSUE_OUTPUT_DIR = f"{RESULT_DIR}/tissue_gene_classification_n2vplus"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR])
+check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR, N2V_TISSUE_OUTPUT_DIR, N2VPLUS_TISSUE_OUTPUT_DIR])
 
 ###DEFAULT HYPER PARAMS###
 HPARAM_DIM = 128
@@ -84,6 +86,8 @@ def evaluate(args):
         datasets = ["GOBP", "DisGeNet"]
     elif args.task == "tissue":
         datasets = ["GOBP-tissue"]
+    else:
+        raise ValueError(f"Unknown task {task}")
 
     if args.test:
         NUM_THREADS = 128
@@ -124,7 +128,11 @@ def evaluate(args):
     # Print results summary (and save)
     print(result_df[["Training score", "Validation score", "Testing score"]].describe())
     if not nooutput:
-        output_dir = N2VPLUS_OUTPUT_DIR if extend else N2V_OUTPUT_DIR
+        if args.task == "standard":
+            output_dir = N2VPLUS_OUTPUT_DIR if extend else N2V_OUTPUT_DIR
+        else:
+            output_dir = N2VPLUS_TISSUE_OUTPUT_DIR if extend else N2V_TISSUE_OUTPUT_DIR
+
         output_fp = f"{output_dir}/{output_fn}"
         result_df.to_csv(output_fp, index=False)
 
