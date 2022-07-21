@@ -123,6 +123,12 @@ processed for each PPI network following [GenePlexus](https://academic.oup.com/b
 * `GOBP`
 * `DisGeNet`
 
+## Generating label data (dev)
+
+This is only for dev. Labeled datasets will be provided for reproduction.
+
+Once the network data are downloaded (HumanBase, GTEx, STRING) and processed accordingly, run ``process_labels.py`` with ``NLEval`` package.
+
 # Evaluation
 
 This repository contains the following scripts for reproducing the evaluation results
