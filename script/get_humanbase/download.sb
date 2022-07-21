@@ -25,8 +25,14 @@ fi
 # Move to the HumanBase downloads directory
 cd ../../data/networks/ppi/humanbase/downloads
 
+# Download sparsified HumanBase networks (thresholded above prior of 0.1)
 wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}_top.gz
 gunzip ${tissue}_top.gz
 
+# Donwload full HumanBase networks
 wget https://s3-us-west-2.amazonaws.com/humanbase/networks/${tissue}.gz
 gunzip ${tissue}.gz
+
+# Remove corrected true edges and replace with predicted probabilities
+awk '{if (NF==4) print $1"\t"$2"\t"$4; else print $0}' ${tissue} > ${tissue}_tmp
+mv ${tissue}_tmp ${tissue}
