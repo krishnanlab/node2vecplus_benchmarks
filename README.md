@@ -192,3 +192,10 @@ sh submit_all.sh
 
 Note: depending on the your preference you can modify the nodes requirement in `submit_all.sh` for individual jobs script.
 
+# Dev
+
+Example test commands
+
+```bash
+$ python eval_gene_classification_n2v.py --gene_universe HBGTX --network global_top --p 1 --q 1 --nooutput --test
+```
