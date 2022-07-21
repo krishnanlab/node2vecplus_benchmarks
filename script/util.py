@@ -12,6 +12,8 @@ from sklearn.metrics import average_precision_score
 
 from common_var import *
 
+SEARCH_BLKLST = ["backup", "bkp"]
+
 
 def config_logger():
     """Configure logger using the config file."""
@@ -35,8 +37,12 @@ def get_network_fp(network: str):
     for path, _, files in os.walk(NETWORK_DIR):
         if filename in files:
             filepath = os.path.join(path, filename)
-            print(f"Found network at {filepath}")
-            return filepath
+            dirs = osp.normpath(path).split(os.sep)
+            if any(i in dirs for i in SEARCH_BLKLST):
+                print(f"Excluding file from blacklisted dirs {filepath}")
+            else:
+                print(f"Found network at {filepath}")
+                return filepath
     else:
         raise FileNotFoundError(f"Cannot locate {filename}")
 
