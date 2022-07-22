@@ -20,6 +20,11 @@ echo datadir=$datadir
 cd $homedir
 ID=$SLURM_ARRAY_TASK_ID
 
+if ((ID == 0)); then
+    # Queue dat-to-npz conversion jobs
+    sbatch --dependency=afterany:$SLURM_ARRAY_JOB_ID sparsify_networks.sb
+fi
+
 readarray -t tissues < valid_annotated_tissues.txt
 tissue=${tissues[ID]}
 echo tissue=${tissue}

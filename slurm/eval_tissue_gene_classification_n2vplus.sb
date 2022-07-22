@@ -4,7 +4,7 @@
 #SBATCH -N 1
 #SBATCH -c 4
 #SBATCH --mem=16GB
-#SBATCH --array=0-499  # 20 networks, 5x5 pq settings
+#SBATCH --array=0-649  # 26 networks, 5x5 pq settings
 #SBATCH -o ../slurm_history/slurm-%A-%a.out
 
 cd $SLURM_SUBMIT_DIR
@@ -30,14 +30,20 @@ GTExCoExp-brain
 GTExCoExp-heart
 GTExCoExp-kidney
 GTExCoExp-muscle
+GTExCoExpTop-blood
+GTExCoExpTop-blood_vessel
+GTExCoExpTop-brain
+GTExCoExpTop-heart
+GTExCoExpTop-kidney
+GTExCoExpTop-muscle
 )
 
 pqs=(0.01 0.1 1 10 100)
 
 ID=$SLURM_ARRAY_TASK_ID
-network=${networks[$(expr $ID % 20)]}
-p=${pqs[$(expr $ID / 20 % 5)]}
-q=${pqs[$(expr $ID / 20 / 5)]}
+network=${networks[$(expr $ID % 26)]}
+p=${pqs[$(expr $ID / 26 % 5)]}
+q=${pqs[$(expr $ID / 26 / 5)]}
 
 if [ $ID == 0 ]; then 
     # submit job for combining all results after all evaluation jobs are finished
