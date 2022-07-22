@@ -14,3 +14,4 @@ Job scripts
 Scripts
 * `sparsify_networks.py` - compute the optimal cut threshold and use it to construct and save the sparsified GTEx coexpression networks.
     * 2020-07-20: 0.7368
+    * 2022-07-22: 2.2105 (added GTExCoExp-global; optim cut based on 98% genes preserved in the largest connected component)
