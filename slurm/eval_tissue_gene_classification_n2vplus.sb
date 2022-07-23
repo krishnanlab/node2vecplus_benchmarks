@@ -4,46 +4,48 @@
 #SBATCH -N 1
 #SBATCH -c 4
 #SBATCH --mem=16GB
-#SBATCH --array=0-649  # 26 networks, 5x5 pq settings
+#SBATCH --array=0-699  # 28 networks, 5x5 pq settings
 #SBATCH -o ../slurm_history/slurm-%A-%a.out
 
 cd $SLURM_SUBMIT_DIR
 
 networks=(
-HumanBase-blood
-HumanBase-brain
-HumanBase-heart
-HumanBase-muscle
-HumanBaseTop-blood_vessel
-HumanBaseTop-global
-HumanBaseTop-kidney
-HumanBase-blood_vessel
-HumanBase-global
-HumanBase-kidney
-HumanBaseTop-blood
-HumanBaseTop-brain
-HumanBaseTop-heart
-HumanBaseTop-muscle
 GTExCoExp-blood
 GTExCoExp-blood_vessel
 GTExCoExp-brain
+GTExCoExp-global
 GTExCoExp-heart
 GTExCoExp-kidney
 GTExCoExp-muscle
 GTExCoExpTop-blood
 GTExCoExpTop-blood_vessel
 GTExCoExpTop-brain
+GTExCoExpTop-global
 GTExCoExpTop-heart
 GTExCoExpTop-kidney
 GTExCoExpTop-muscle
+HumanBase-blood
+HumanBase-blood_vessel
+HumanBase-brain
+HumanBase-global
+HumanBase-heart
+HumanBase-kidney
+HumanBase-muscle
+HumanBaseTop-blood
+HumanBaseTop-blood_vessel
+HumanBaseTop-brain
+HumanBaseTop-global
+HumanBaseTop-heart
+HumanBaseTop-kidney
+HumanBaseTop-muscle
 )
 
 pqs=(0.01 0.1 1 10 100)
 
 ID=$SLURM_ARRAY_TASK_ID
-network=${networks[$(expr $ID % 26)]}
-p=${pqs[$(expr $ID / 26 % 5)]}
-q=${pqs[$(expr $ID / 26 / 5)]}
+network=${networks[$(expr $ID % 28)]}
+p=${pqs[$(expr $ID / 28 % 5)]}
+q=${pqs[$(expr $ID / 28 / 5)]}
 
 if [ $ID == 0 ]; then 
     # submit job for combining all results after all evaluation jobs are finished
