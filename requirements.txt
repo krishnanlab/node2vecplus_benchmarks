@@ -1,0 +1,9 @@
+numba==0.55.2
+numpy==1.22.4
+pandas==1.4.3
+pecanpy==2.0.6
+pyyaml==6.0
+scikit-learn==1.1.2
+scipy==1.9.0
+seaborn==0.11.2
+statannot==0.2.3
