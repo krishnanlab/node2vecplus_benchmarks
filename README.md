@@ -27,7 +27,7 @@ source config.sh download_ppis
 sh submit_all.sh
 ```
 
-After all evaluation jobs are finished successfully, open the jupyter notebooks in `plot/` and generate evaluation plots. 
+After all evaluation jobs are finished successfully, open the jupyter notebooks in [`plot/`](plot) and generate evaluation plots.
 
 ## Setting up environment
 
@@ -46,7 +46,7 @@ source config.sh cleanup
 ### Set up manually
 
 Alternatively, user can set up the environment manually instead of using the `config.sh` script.
-Additionally all the required dependencies can be found in `requirements.txt`.
+Additionally all the required dependencies can be found in [`requirements.txt`](requirements.txt).
 
 * **Step1.** Set up node2vecpluc-bench conda environment with Python 3.8
 
@@ -119,10 +119,10 @@ tar -xzvf node2vecplus_bench_ppis.tar.gz --transform 's/node2vecplus_bench_ppis/
 
 This repository contains the following scripts for reproducing the evaluation results
 
-* `eval_hcluster.py` - evaluate performnace of node2vec(+) using hierarchical cluster graphs
-* `eval_realworld_networks.py` - evaluate performance of node2vec(+) using commonly benchmarked real-world datasets BlogCatalog and Wikipedia
-* `eval_gene_classification_n2v.py` - evalute performance of node2vec(+) for gene classification tasks using gene interaction networks
-* `eval_gene_classification_gnn.py` - evaluate performance of GNNs for gene classification tasks using gene interaction networks
+* [`eval_hcluster.py`](script/eval_hcluster.py) - evaluate performnace of node2vec(+) using hierarchical cluster graphs
+* [`eval_realworld_networks.py`](script/eval_realworld_networks.py) - evaluate performance of node2vec(+) using commonly benchmarked real-world datasets BlogCatalog and Wikipedia
+* [`eval_gene_classification_n2v.py`](script/eval_gene_classification_n2v.py) - evalute performance of node2vec(+) for gene classification tasks using gene interaction networks
+* [`eval_gene_classification_gnn.py`](script/eval_gene_classification_gnn.py) - evaluate performance of GNNs for gene classification tasks using gene interaction networks
 
 Each one of the above scripts can be run from command line, e.g.
 
@@ -139,7 +139,7 @@ python evalu_hcluster.py --netwokr K3L2 --q 10 --nooutput --extend
 python eval_hcluster.py --help
 ```
 
-If `--nooutput` is not specified, then the evaluation results are saved to `result/` as `.csv`.
+If `--nooutput` is not specified, then the evaluation results are saved to [`result/`](result) as `.csv`.
 
 ### Submitting evaluation jobs
 
@@ -176,7 +176,7 @@ Or submitting all evaluations above by simply running
 sh submit_all.sh
 ```
 
-Note: depending on the your preference you can modify the nodes requirement in `submit_all.sh` for individual jobs script.
+Note: depending on the your preference you can modify the nodes requirement in [`submit_all.sh`](submit_all.sh) for individual jobs script.
 
 ## Dev notes
 
