@@ -34,56 +34,41 @@ After all evaluation jobs are finished successfully, open the jupyter notebooks 
 
 ## Setting up environment
 
-Requirements forthe conda environment `node2vecplus-bench`:
-
-* [Python 3.8](https://www.python.org/downloads/release/python-3810/)
-* [Pandas](https://pandas.pydata.org/)
-* [scikit-learn](https://scikit-learn.org/)
-* [PecanPy](https://github.com/krishnanlab/PecanPy) (latest dev version)
-* [PyTorch](https://pytorch.org/)
-* [PyTorch-Geometric](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html)
-
-### Setup manually
-
-Follow steps below to setup the environment for testing.
-
-***Note: need to setup CUDA10.2 properly before installing pytorch geometirc***
+We provide a simple script to set up the [conda](https://conda.io/projects/conda/en/latest/index.html) environemnt `node2vecplus-bench`:
 
 ```bash
-# Create and activate conda environment
-conda create -n node2vecplus-bench python=3.8 pandas scikit-learn -y
-conda activate node2vecplus-bench
-
-# Setup pytorch geometric (CUDA10.2)
-conda install pytorch=1.9 torchvision torchaudio cudatoolkit=10.2 -c pytorch -y
-conda install pytorch-geometric -c rusty1s -c conda-forge -y
-
-# Install PecanPy version 2.0.2
-pip install pecanpy==2.0.2
-
-# Clean up
-conda clean --all -y
+source config.sh setup
 ```
 
-### Setup using bash script
-
-Alternatively, one can run the `setup_env.sh` script to setup the `node2vecplus-bench` conda environment:
+To remove the environment, simply run
 
 ```bash
-cd script/init_setup
-sh setup_env.sh
-
-# to remove the node2vecplus-bench conda environment, run the following
-sh clean_env.sh
+source config.sh cleanup
 ```
 
-Note that this script uses the following two lines to load GCC8.3 and CUDA10.2. 
-If this is not compatible with your system, you need to modify them accordingly before executing the script.
+### Set up manually
 
-```bash
-module load GCC/8.3.0
-module load CUDA/10
-```
+Alternatively, user can set up the environment manually instead of using the `config.sh` script.
+Additionally all the required dependencies can be found in `requirements.txt`.
+
+* **Step1.** Set up node2vecpluc-bench conda environment with Python 3.8
+
+    ```bash
+    conda create -n node2vecplus-bench python=3.8 && conda activate node2vecplus-bench
+    ```
+
+* **Step2.** Set up [PyTorch](https://pytorch.org) related packages with CUDA 10.2 (checkout the PyTorch website for other CUDA/CPU installation options)
+
+    ```bash
+    conda install pytorch=1.9 torchvision cudatoolkit=10.2 -c pytorch -y
+    pip install torch-geometric==2.0.0 torch-scatter torch-sparse torch-cluster -f https://data.pyg.org/whl/torch-1.9.0+cu102.html
+    ```
+
+* **Step3.** Install rest of the depencies for reproducing experiemnts
+
+    ```bash
+    pip install -r requirements.txt
+    ```
 
 ## Data
 
