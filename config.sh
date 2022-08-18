@@ -13,7 +13,7 @@ PYG_WHL_URL="https://data.pyg.org/whl/torch-${PYTORCH_VERSION}+cu102.html"
 # Check configuration option and execute
 if [ -z $1 ]
 then
-    echo "ERROR: please provide option for configuration [setup,cleanup]"
+    echo "ERROR: please provide option for configuration [setup,cleanup,download_ppis]"
     return 1
 fi
 
@@ -24,8 +24,11 @@ case $1 in
     cleanup)
         cleanup
         ;;
+    download_ppis)
+        download_ppis
+        ;;
     *)
-        echo "ERROR: unknown option ${1}, please choose from [setup,cleanup]"
+        echo "ERROR: unknown option ${1}, please choose from [setup,cleanup,download_ppis]"
         return 1
         ;;
 esac
@@ -51,4 +54,13 @@ setup () {
 cleanup () {
     echo "Cleaning up conda environment ${ENV_NAME}"
     conda remove --name ${ENV_NAME} --all -y && conda clean --all -y
+}
+
+# Download gene interaction network data from Dropbox
+download_ppis () {
+    echo "Start downloading gene interaciton network data from Dropbox"
+    curl -L -o node2vecplus_bench_ppis.tar.gz https://www.dropbox.com/s/aettebq5lbgu1cu/node2vecplus_bench_ppis-v1.0.0.tar.gz?dl=1
+
+    echo "Finshed downloading, start extracting, this might take a while..."
+    tar -xzvf node2vecplus_bench_ppis.tar.gz --transform 's/node2vecplus_bench_ppis/ppi/' --directory data/networks && rm -f node2vecplus_bench_ppis.tar.gz
 }

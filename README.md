@@ -90,6 +90,10 @@ The networks are processed by removing isolated nodes and converting to edge lis
 
 ### Gene interaction networks [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7007164.svg)](https://doi.org/10.5281/zenodo.7007164)
 
+```bash
+source config.sh download_ppis
+```
+
 #### Download
 
 Under the root directory of the repository, download gene interaction networks from Zenodo
