@@ -5,7 +5,7 @@ This repository contains data and scripts for reproducing evaluation results pre
 Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
 a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
 
-# Quick start
+## Quick start
 
 Follow the scripts below to execute full evaluation provaided in this repository. 
 For more details, check out the sections below. 
@@ -19,20 +19,20 @@ For more details, check out the sections below.
 ```bash
 cd script/init_setup
 
-# setup conda environment
+## setup conda environment
 sh setup_env.sh
 
-# download ppis
+## download ppis
 sh download_ppis.sh
 
-# submit evaluation jobs
+## submit evaluation jobs
 cd ../../slurm
 sh submit_all.sh
 ```
 
 After all evaluation jobs are finished successfully, open the jupyter notebooks in `plot/` and generate evaluation plots. 
 
-# Setting up environment
+## Setting up environment
 
 Requirements forthe conda environment `node2vecplus-bench`:
 
@@ -43,7 +43,7 @@ Requirements forthe conda environment `node2vecplus-bench`:
 * [PyTorch](https://pytorch.org/)
 * [PyTorch-Geometric](https://pytorch-geometric.readthedocs.io/en/latest/notes/installation.html)
 
-## Setup manually
+### Setup manually
 
 Follow steps below to setup the environment for testing.
 
@@ -65,7 +65,7 @@ pip install pecanpy==2.0.2
 conda clean --all -y
 ```
 
-## Setup using bash script
+### Setup using bash script
 
 Alternatively, one can run the `setup_env.sh` script to setup the `node2vecplus-bench` conda environment:
 
@@ -85,7 +85,7 @@ module load GCC/8.3.0
 module load CUDA/10
 ```
 
-# Data
+## Data
 
 * Hierarchical cluster graphs
 * Real world (small) networks
@@ -103,7 +103,7 @@ Each network is assocaited with two tasks, cluster classification and level clas
 The BlogCatalog and Wikipedia networks, along with the associated node labels, are obtained from [SNAP-node2vec](https://snap.stanford.edu/node2vec/). 
 The networks are processed by removing isolated nodes and converting to edge list tsv files.
 
-## Downloading PPIs
+### Downloading PPIs
 
 Due to the file size limitation, the PPIs are not uploaded to this GitHub repository. 
 Instead, they are pulled from two external data repositories 
@@ -123,13 +123,13 @@ processed for each PPI network following [GenePlexus](https://academic.oup.com/b
 * `GOBP`
 * `DisGeNet`
 
-## Generating label data (dev)
+### Generating label data (dev)
 
 This is only for dev. Labeled datasets will be provided for reproduction.
 
 Once the network data are downloaded (HumanBase, GTEx, STRING) and processed accordingly, run ``process_labels.py`` with ``NLEval`` package.
 
-# Evaluation
+## Evaluation
 
 This repository contains the following scripts for reproducing the evaluation results
 
@@ -155,7 +155,7 @@ python eval_hcluster.py --help
 
 If `--nooutput` is not specified, then the evaluation results are saved to `result/` as `.csv`.
 
-## Submitting evaluation jobs
+### Submitting evaluation jobs
 
 Alternatively, one can submit evaluation jobs using
 
@@ -192,7 +192,7 @@ sh submit_all.sh
 
 Note: depending on the your preference you can modify the nodes requirement in `submit_all.sh` for individual jobs script.
 
-# Dev
+## Dev
 
 Example test commands
 
