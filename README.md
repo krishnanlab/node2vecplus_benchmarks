@@ -5,28 +5,25 @@ This repository contains data and scripts for reproducing evaluation results pre
 Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
 a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
 
-## Quick start
+## Overview
 
 Follow the scripts below to execute full evaluation provaided in this repository. 
 For more details, check out the sections below. 
 
-* [Setup environment](#setting-up-environment)
-* [Download PPIs](#downloading-ppis)
+* [Set up conda environment](#setting-up-environment)
+* [Set up gene interaction network data](#download)
 * [Evaluate](#evaluation)
 
 ***PROCEED WITH CAUTION: the full evaluation consumes significant amount of space and computational resources (via [SLURM](https://slurm.schedmd.com/overview.html))***
 
 ```bash
-cd script/init_setup
+# Set up conda environment
+source config.sh setup
 
-## setup conda environment
-sh setup_env.sh
+# Download and set up gene interaction network data
+source config.sh download_ppis
 
-## download ppis
-sh download_ppis.sh
-
-## submit evaluation jobs
-cd ../../slurm
+# Submit all evaluation jobs
 sh submit_all.sh
 ```
 
