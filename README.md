@@ -118,20 +118,14 @@ After the zipped tar ball is downloaded, extract and place them under `data/netw
 tar -xzvf node2vecplus_bench_ppis.tar.gz --transform 's/node2vecplus_bench_ppis/ppi/' --directory data/networks
 ```
 
-### Generating label data (dev)
-
-This is only for dev. Labeled datasets will be provided for reproduction.
-
-Once the network data are downloaded (HumanBase, GTEx, STRING) and processed accordingly, run ``process_labels.py`` with ``NLEval`` package.
-
 ## Evaluation
 
 This repository contains the following scripts for reproducing the evaluation results
 
 * `eval_hcluster.py` - evaluate performnace of node2vec(+) using hierarchical cluster graphs
 * `eval_realworld_networks.py` - evaluate performance of node2vec(+) using commonly benchmarked real-world datasets BlogCatalog and Wikipedia
-* `eval_gene_classification_n2v.py` - evalute performance of node2vec(+) for gene classification tasks using PPI networks
-* `eval_gene_classification_gnn.py` - evaluate performance of GNNs for gene classification tasks using PPI networks
+* `eval_gene_classification_n2v.py` - evalute performance of node2vec(+) for gene classification tasks using gene interaction networks
+* `eval_gene_classification_gnn.py` - evaluate performance of GNNs for gene classification tasks using gene interaction networks
 
 Each one of the above scripts can be run from command line, e.g.
 
@@ -187,10 +181,37 @@ sh submit_all.sh
 
 Note: depending on the your preference you can modify the nodes requirement in `submit_all.sh` for individual jobs script.
 
-## Dev
+## Dev notes
 
 Example test commands
 
 ```bash
-$ python eval_gene_classification_n2v.py --gene_universe HBGTX --network HumanBaseTop-global --p 1 --q 1 --nooutput --test
+python eval_gene_classification_n2v.py --gene_universe HBGTX --network HumanBaseTop-global --p 1 --q 1 --nooutput --test
 ```
+
+### Setting up gene interaction network (from scratch)
+
+* [STRING](https://doi.org/10.5281/zenodo.3352323)
+* [HumanBase](script/get_humanbase/README.md)
+* [GTExCoExp](script/get_gtexcoexp/README.md)
+
+### Generating labeled data for gene classification
+
+Install additional dev dependencies
+
+```bash
+pip install -r requirements-dev.txt
+```
+
+Once the network data are set up and placed under ``data/networks/ppi``, run
+
+```bash
+process_labels.py
+```
+
+### Update gene interaction network data on Zenodo
+
+1. Make new dataset version on zenodo and upload corresponding file
+1. Upload file to dropbox for alternative download option
+1. Update README (Zenodo DOI, Zenodo link, Dropbox link)
+1. Update ``config.sh`` Dropbox link
