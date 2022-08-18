@@ -1,7 +1,7 @@
 # Node2vec+ Benchmarks
 
 This repository contains data and scripts for reproducing evaluation results presented in 
-[*Accurately Modeling Biased Random Walks on Weighted Wraphs Using Node2vec+*](https://arxiv.org/abs/2109.08031). 
+[*Accurately modeling biased random walks on weighted networks using node2vec+*](https://www.biorxiv.org/content/early/2022/08/15/2022.08.14.503926).
 Node2vec+ is implemented as an extension to [PecanPy](https://github.com/krishnanlab/PecanPy), 
 a fast and memory efficient implementation of [node2vec](https://snap.stanford.edu/node2vec/). 
 
@@ -212,3 +212,20 @@ process_labels.py
 1. Upload file to dropbox for alternative download option
 1. Update README (Zenodo DOI, Zenodo link, Dropbox link)
 1. Update ``config.sh`` Dropbox link
+
+## Cite us
+
+If you find this work useful, please consider citing our paper:
+
+```bibtex
+@article {liu2022node2vecplus,
+	title = {Accurately modeling biased random walks on weighted networks using node2vec+},
+	author = {Liu, Renming and Hirn, Matthew and Krishnan, Arjun},
+	year = {2022},
+	doi = {10.1101/2022.08.14.503926},
+	publisher = {Cold Spring Harbor Laboratory},
+	journal = {bioRxiv}
+	URL = {https://www.biorxiv.org/content/early/2022/08/15/2022.08.14.503926},
+	eprint = {https://www.biorxiv.org/content/early/2022/08/15/2022.08.14.503926.full.pdf},
+}
+```
