@@ -73,13 +73,13 @@ Additionally all the required dependencies can be found in `requirements.txt`.
 ## Data
 
 * Hierarchical cluster graphs
-* Real world (small) networks
-    * `BlogCatalog` (10,312 nodes, 333,983 edges)
-    * `Wikipedia` (4,777 nodes, 92,406 edges)
-* Protein-protein interaction networks (*need to download, see below*)
-    * `STRING` (17,352 nodes, 3,640,737 edges)
-    * `GIANT-TN` (25,825 nodes, 333,452,400 edges)
-    * `GIANT-TN-c01` (25,689 nodes, 38,904,929 edges)
+* Standard benchmarking datasets
+    * `BlogCatalog`
+    * `Wikipedia`
+* Human gene interaction networks (*need to download, see below*)
+    * `STRING`
+    * `HumanBase*`
+    * `GTExCoExp*`
 
 The hierarchical cluster graphs are constructed by taking RBF of point coulds generated in the Euclidean space, 
 and hence each graph natually exhibits a hierarchical community structure (more info in the supplementary materials of the paper). 
@@ -88,25 +88,31 @@ Each network is assocaited with two tasks, cluster classification and level clas
 The BlogCatalog and Wikipedia networks, along with the associated node labels, are obtained from [SNAP-node2vec](https://snap.stanford.edu/node2vec/). 
 The networks are processed by removing isolated nodes and converting to edge list tsv files.
 
-### Downloading PPIs
+### Gene interaction networks [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7007164.svg)](https://doi.org/10.5281/zenodo.7007164)
 
-Due to the file size limitation, the PPIs are not uploaded to this GitHub repository. 
-Instead, they are pulled from two external data repositories 
-[GenePlexus](https://zenodo.org/record/3352348/#.YTejK9NKhzU) and [GIANT](http://giant.princeton.edu/). 
+#### Download
 
-Run the following script to pull and preprocess networks (takes 1~2 hours to complete)
-
-***WARNING: takes up 21GB of space, proceed with caution!!!***
+Under the root directory of the repository, download gene interaction networks from Zenodo
 
 ```bash
-cd script/init_setup
-sh download_ppis.sh
+curl -o node2vecplus_bench_ppis.tar.gz https://zenodo.org/record/7007164/files/node2vecplus_bench_ppis.tar.gz
 ```
 
-The labels for gene classificaitons are available under `data/labels/gene_classification/`, 
-processed for each PPI network following [GenePlexus](https://academic.oup.com/bioinformatics/article/36/11/3457/5780279)
-* `GOBP`
-* `DisGeNet`
+(Recommended) Although Zenodo provide a nice feature for versioning datasets with DOI, downloading could be a bit slow.
+Thus, we provide an alternative download option from Dropbox.
+The file should be in sync with the latest dataset version on Zenodo.
+
+```bash
+curl -L -o node2vecplus_bench_ppis.tar.gz https://www.dropbox.com/s/aettebq5lbgu1cu/node2vecplus_bench_ppis-v1.0.0.tar.gz?dl=1
+```
+
+#### Extract
+
+After the zipped tar ball is downloaded, extract and place them under `data/networks` by
+
+```bash
+tar -xzvf node2vecplus_bench_ppis.tar.gz --transform 's/node2vecplus_bench_ppis/ppi/' --directory data/networks
+```
 
 ### Generating label data (dev)
 
