@@ -1,0 +1,27 @@
+#!/bin/bash --login
+#SBATCH -N 1
+#SBATCH -c 1
+#SBATCH -t 3:55:00
+#SBATCH --mem=64GB
+#SBATCH --gres=gpu:v100:1
+#SBATCH -A cmse
+#SBATCH -o ../slurm_history/slurm-%x-%A.out
+
+conda activate node2vecplus-bench
+cd $SLURM_SUBMIT_DIR
+cd ../script
+
+base_script=$@
+
+networks=(STRING HumanBase-global HumanBaseTop-global)
+datasets=(DisGeNet GOBP)
+for runid in $(seq 5); do
+    for network in ${networks[@]}; do
+        for dataset in ${datasets[@]}; do
+            [[ $network == STRING ]] && gene_universe=STRING || gene_universe=HBGTX
+            script="${base_script} --gene_universe ${gene_universe} --network ${network} --dataset ${dataset} --runid ${runid}"
+            echo $script
+            eval $script
+        done
+    done
+done

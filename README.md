@@ -178,6 +178,15 @@ sh submit_all.sh
 
 Note: depending on the your preference you can modify the nodes requirement in [`submit_all.sh`](submit_all.sh) for individual jobs script.
 
+#### Tuning GNNs
+
+First, tune the architecture of GNN (hidden dimension, number of layers, residual connection)
+
+```bash
+cd gnn_tuning
+sh tune_gnn_architecture.sb
+```
+
 ## Dev notes
 
 Example test commands
