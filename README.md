@@ -187,6 +187,13 @@ cd gnn_tuning
 sh tune_gnn_architecture.sb
 ```
 
+Then, fix the best architecture and tune the rest of the training parameters (learning rate, dropout rate, weight decay)
+
+```bash
+cd gnn_tuning
+sh tune_gnn_params.sb
+```
+
 ## Dev notes
 
 Example test commands
