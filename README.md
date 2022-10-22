@@ -194,6 +194,12 @@ cd gnn_tuning
 sh tune_gnn_params.sb
 ```
 
+To aggregate the gnn tuning results, use [`aggregate_tuning_results.py`](gnn_tuning/aggregate_tuning_results.py):
+
+```bash
+python gnn_tuning/aggregate_tuning_results.py
+```
+
 ## Dev notes
 
 Example test commands
