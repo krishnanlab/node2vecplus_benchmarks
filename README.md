@@ -200,6 +200,8 @@ To aggregate the gnn tuning results, use [`aggregate_tuning_results.py`](gnn_tun
 python gnn_tuning/aggregate_tuning_results.py
 ```
 
+Finally, use the [GNN tuning notebook](plot/tune_gnn.ipynb) to analyze the results and find the optimal GNN configurations.
+
 ## Dev notes
 
 Example test commands
