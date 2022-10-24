@@ -178,6 +178,30 @@ sh submit_all.sh
 
 Note: depending on the your preference you can modify the nodes requirement in [`submit_all.sh`](submit_all.sh) for individual jobs script.
 
+#### Tuning GNNs
+
+First, tune the architecture of GNN (hidden dimension, number of layers, residual connection)
+
+```bash
+cd gnn_tuning
+sh tune_gnn_architecture.sb
+```
+
+Then, fix the best architecture and tune the rest of the training parameters (learning rate, dropout rate, weight decay)
+
+```bash
+cd gnn_tuning
+sh tune_gnn_params.sb
+```
+
+To aggregate the gnn tuning results, use [`aggregate_tuning_results.py`](gnn_tuning/aggregate_tuning_results.py):
+
+```bash
+python gnn_tuning/aggregate_tuning_results.py
+```
+
+Finally, use the [GNN tuning notebook](plot/tune_gnn.ipynb) to analyze the results and find the optimal GNN configurations.
+
 ## Dev notes
 
 Example test commands
