@@ -27,7 +27,8 @@ LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 check_dirs([RESULT_DIR, OUTPUT_DIR, HP_TUNE_OUTPUT_DIR])
 
 ########## PARAMETERS ##########
-EPOCHS = 50_000
+EPOCHS = 30_000
+TUNING_EPOCHS = 4_000
 EVAL_STEPS = 100
 SCHEDULER_PATIENCE = 500
 
@@ -257,7 +258,7 @@ def main():
         epochs = 100
         eval_steps = 10
     elif args.hp_tune:
-        epochs = 2500
+        epochs = TUNING_EPOCHS
     patience = max(1, int(SCHEDULER_PATIENCE // eval_steps))
 
     # Get output path

@@ -15,7 +15,7 @@ base_script=$@
 
 networks=(STRING HumanBase-global HumanBaseTop-global)
 datasets=(DisGeNet GOBP)
-for runid in $(seq 5); do
+for runid in $(seq 3); do
     for network in ${networks[@]}; do
         for dataset in ${datasets[@]}; do
             [[ $network == STRING ]] && gene_universe=STRING || gene_universe=HBGTX
