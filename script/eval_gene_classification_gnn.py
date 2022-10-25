@@ -60,7 +60,7 @@ class GNN(nn.Module):
         residual: bool = True,
         dropout: float = 0.1,
         pre_mp_layers: int = 1,
-        post_mp_layers: int = 2,
+        post_mp_layers: int = 1,
     ):
         super().__init__()
 
@@ -90,9 +90,17 @@ class GNN(nn.Module):
             self.post_mp.append(nn.Linear(hidden_channels, hidden_channels))
         self.post_mp.append(nn.Linear(hidden_channels, out_channels))
 
+        self.reset_parameters()
+
     def reset_parameters(self):
-        for i in itertools.chain(self.pre_mp, self.convs, self.post_mp):
-            i.reset_parameters()
+        for m in itertools.chain.from_iterable(self.children()):
+            if isinstance(m, nn.Linear):
+                m.weight.data = nn.init.xavier_uniform_(
+                    m.weight.data, gain=nn.init.calculate_gain('relu'))
+                if m.bias is not None:
+                    m.bias.data.zero_()
+            else:
+                m.reset_parameters()
 
     def forward(self, x, adj):
         for mp in self.pre_mp:
@@ -275,7 +283,7 @@ def main():
         exit(0)
 
     optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = ReduceLROnPlateau(optimizer, mode="max", factor=0.5, patience=patience, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode="max", factor=0.8, patience=patience, verbose=True)
 
     # Train model and record best performance
     best_epoch = 0
