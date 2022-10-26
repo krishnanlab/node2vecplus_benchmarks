@@ -27,18 +27,19 @@ LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 check_dirs([RESULT_DIR, OUTPUT_DIR, HP_TUNE_OUTPUT_DIR])
 
 ########## PARAMETERS ##########
-EPOCHS = 50_000
+EPOCHS = 30_000
+TUNING_EPOCHS = 4_000
 EVAL_STEPS = 100
 SCHEDULER_PATIENCE = 500
 
-HPARAM_GCN_DIM = 64
+HPARAM_GCN_DIM = 128
 HPARAM_GCN_NUM_LAYERS = 5
 HPARAM_GCN_RESIDUAL = True
 HPARAM_GCN_LR = 0.01
 HPARAM_GCN_DROPOUT = 0.1
-HPARAM_GCN_WEIGHT_DECAY = 1e-6
+HPARAM_GCN_WEIGHT_DECAY = 1e-7
 
-HPARAM_SAGE_DIM = 64
+HPARAM_SAGE_DIM = 128
 HPARAM_SAGE_NUM_LAYERS = 5
 HPARAM_SAGE_RESIDUAL = False
 HPARAM_SAGE_LR = 0.001
@@ -60,7 +61,7 @@ class GNN(nn.Module):
         residual: bool = True,
         dropout: float = 0.1,
         pre_mp_layers: int = 1,
-        post_mp_layers: int = 2,
+        post_mp_layers: int = 1,
     ):
         super().__init__()
 
@@ -90,9 +91,17 @@ class GNN(nn.Module):
             self.post_mp.append(nn.Linear(hidden_channels, hidden_channels))
         self.post_mp.append(nn.Linear(hidden_channels, out_channels))
 
+        self.reset_parameters()
+
     def reset_parameters(self):
-        for i in itertools.chain(self.pre_mp, self.convs, self.post_mp):
-            i.reset_parameters()
+        for m in itertools.chain.from_iterable(self.children()):
+            if isinstance(m, nn.Linear):
+                m.weight.data = nn.init.xavier_uniform_(
+                    m.weight.data, gain=nn.init.calculate_gain('relu'))
+                if m.bias is not None:
+                    m.bias.data.zero_()
+            else:
+                m.reset_parameters()
 
     def forward(self, x, adj):
         for mp in self.pre_mp:
@@ -249,7 +258,7 @@ def main():
         epochs = 100
         eval_steps = 10
     elif args.hp_tune:
-        epochs = 2500
+        epochs = TUNING_EPOCHS
     patience = max(1, int(SCHEDULER_PATIENCE // eval_steps))
 
     # Get output path
@@ -275,7 +284,7 @@ def main():
         exit(0)
 
     optimizer = Adam(model.parameters(), lr=lr, weight_decay=weight_decay)
-    scheduler = ReduceLROnPlateau(optimizer, mode="max", factor=0.5, patience=patience, verbose=True)
+    scheduler = ReduceLROnPlateau(optimizer, mode="max", factor=0.8, patience=patience, verbose=True)
 
     # Train model and record best performance
     best_epoch = 0

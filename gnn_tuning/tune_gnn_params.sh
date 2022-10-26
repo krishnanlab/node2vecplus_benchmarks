@@ -1,10 +1,10 @@
 #!/bin/bash --login
 
-gcn_dim=64
+gcn_dim=128
 gcn_num_layers=5
 gcn_residual=1
 
-sage_dim=64
+sage_dim=128
 sage_num_layers=5
 sage_residual=0
 
