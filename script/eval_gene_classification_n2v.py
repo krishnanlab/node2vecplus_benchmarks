@@ -13,11 +13,21 @@ from util import *
 
 N2V_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2v"
 N2VPLUS_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2vplus"
+N2VPLUSPLUS_OUTPUT_DIR = f"{RESULT_DIR}/gene_classification_n2vplusplus"
 N2V_TISSUE_OUTPUT_DIR = f"{RESULT_DIR}/tissue_gene_classification_n2v"
 N2VPLUS_TISSUE_OUTPUT_DIR = f"{RESULT_DIR}/tissue_gene_classification_n2vplus"
+N2VPLUSPLUS_TISSUE_OUTPUT_DIR = f"{RESULT_DIR}/tissue_gene_classification_n2vplusplus"
 LABEL_DIR = f"{DATA_DIR}/labels/gene_classification"
 
-check_dirs([RESULT_DIR, N2VPLUS_OUTPUT_DIR, N2V_OUTPUT_DIR, N2V_TISSUE_OUTPUT_DIR, N2VPLUS_TISSUE_OUTPUT_DIR])
+check_dirs([
+    N2VPLUSPLUS_OUTPUT_DIR,
+    N2VPLUSPLUS_TISSUE_OUTPUT_DIR,
+    N2VPLUS_OUTPUT_DIR,
+    N2VPLUS_TISSUE_OUTPUT_DIR,
+    N2V_OUTPUT_DIR,
+    N2V_TISSUE_OUTPUT_DIR,
+    RESULT_DIR,
+])
 
 ###DEFAULT HYPER PARAMS###
 HPARAM_DIM = 128
@@ -35,11 +45,14 @@ def parse_args():
     parser.add_argument("--task", default="standard", help="'standard': GOBP, DisGeNet or 'tissue': GOBP-tissue")
     parser.add_argument("--p", required=True, type=float, help="return bias parameter p")
     parser.add_argument("--q", required=True, type=float, help="in-out bias parameter q")
-    parser.add_argument("--extend", action="store_true", help="Use node2vec+ if specified, otherwise use node2vec")
-    parser.add_argument("--gamma", type=float, default=0, help="Noisy edge threshold parameter.")
-    parser.add_argument("--nooutput", action="store_true", help="Disable output if specified, and print results to screen")
+    parser.add_argument("--gamma", type=float, default=0, help="Noisy edge threshold parameter")
+    parser.add_argument("--nooutput", action="store_true", help="Disable results saving and print results to screen")
     parser.add_argument("--random_state", type=int, default=0, help="Random state used for generating random splits")
     parser.add_argument("--test", action="store_true", help="Toggle test mode, run with more workers")
+
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--extend", action="store_true", help="Use node2vec+ if specified, otherwise use node2vec")
+    group.add_argument("--extend_cts", action="store_true", help="Use node2vec++ if specified, otherwise use node2vec")
 
     args = parser.parse_args()
     print(args)
@@ -72,19 +85,45 @@ def _evaluate(X_emd, IDs, label_fp, random_state, df_info):
     return df
 
 
+def _get_method_name_and_dir(extend, extend_cts, task_name):
+    if extend and extend_cts:
+        raise ValueError("extend and extend_cts cannot be set together.")
+    elif extend:
+        method = "Node2vec+"
+        method_abrv = "n2vplus"
+        standard_output_dir = N2VPLUS_OUTPUT_DIR
+        tissue_output_dir = N2VPLUS_TISSUE_OUTPUT_DIR
+    elif extend_cts:
+        method = "Node2vec++"
+        method_abrv = "n2vplusplus"
+        standard_output_dir = N2VPLUSPLUS_OUTPUT_DIR
+        tissue_output_dir = N2VPLUSPLUS_TISSUE_OUTPUT_DIR
+    else:
+        method = "Node2vec"
+        method_abrv = "n2v"
+        standard_output_dir = N2V_OUTPUT_DIR
+        tissue_output_dir = N2V_TISSUE_OUTPUT_DIR
+
+    output_dir = standard_output_dir if task_name == "standard" else tissue_output_dir
+
+    return method, method_abrv, output_dir
+
+
 def evaluate(args):
     gene_universe = args.gene_universe
     network = args.network
     extend = args.extend
+    extend_cts = args.extend_cts
     p = args.p
     q = args.q
     gamma = args.gamma
     random_state = args.random_state
     nooutput = args.nooutput
+    task = args.task
 
-    if args.task == "standard":
+    if task == "standard":
         datasets = ["GOBP", "DisGeNet"]
-    elif args.task == "tissue":
+    elif task == "tissue":
         datasets = ["GOBP-tissue"]
     else:
         raise ValueError(f"Unknown task {task}")
@@ -99,13 +138,13 @@ def evaluate(args):
     except ValueError:
         pass
 
-    method = "Node2vec+" if extend else "Node2vec"
-    output_fn = f"{network}_n2v{'plus' if extend else ''}_{p=}_{q=}_{gamma=}.csv"
+    method, method_abrv, output_dir = _get_method_name_and_dir(extend, extend_cts, task)
     network_fp = get_network_fp(network)
+    output_fn = f"{network}_{method_abrv}_{p=}_{q=}_{gamma=}.csv"
 
     # Generate embeddings
     t = time()
-    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, p, q, NUM_THREADS, gamma)
+    X_emd, IDs = embed(network_fp, HPARAM_DIM, extend, extend_cts, p, q, NUM_THREADS, gamma)
     t = time() - t
     print(f"Took {int(t/3600):02d}:{int(t/60):02d}:{t%60:05.02f} to generate embeddings using {method}")
 
@@ -128,11 +167,6 @@ def evaluate(args):
     # Print results summary (and save)
     print(result_df[["Training score", "Validation score", "Testing score"]].describe())
     if not nooutput:
-        if args.task == "standard":
-            output_dir = N2VPLUS_OUTPUT_DIR if extend else N2V_OUTPUT_DIR
-        else:
-            output_dir = N2VPLUS_TISSUE_OUTPUT_DIR if extend else N2V_TISSUE_OUTPUT_DIR
-
         output_fp = f"{output_dir}/{output_fn}"
         result_df.to_csv(output_fp, index=False)
 
