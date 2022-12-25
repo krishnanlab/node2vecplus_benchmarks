@@ -8,6 +8,7 @@ import numba
 import yaml
 from gensim.models import Word2Vec
 from pecanpy import pecanpy
+from pecanpy.experimental import Node2vecPlusPlus
 from sklearn.metrics import average_precision_score
 
 from common_var import *
@@ -93,11 +94,15 @@ def align_gene_ids(adj_ids, y, train_idx, valid_idx, test_idx, gene_ids):
 
 
 
-def embed(network_fp, dim, extend, p, q, workers, gamma):
+def embed(network_fp, dim, extend, extend_cts, p, q, workers, gamma):
     # initialize DenseOTF graph
     adj_mat, IDs = np.load(network_fp).values()
-    g = pecanpy.DenseOTF.from_mat(adj_mat, IDs, p=p, q=q, workers=workers,
-                                  extend=extend, gamma=gamma)
+    if extend_cts:
+        g = Node2vecPlusPlus.from_mat(adj_mat, IDs, p=p, q=q, workers=workers,
+                                      gamma=gamma)
+    else:
+        g = pecanpy.DenseOTF.from_mat(adj_mat, IDs, p=p, q=q, workers=workers,
+                                      extend=extend, gamma=gamma)
 
     # simulate random walks and genearte embedings
     walks = g.simulate_walks(num_walks=W2V_NUMWALKS, walk_length=W2V_WALKLENGTH)
