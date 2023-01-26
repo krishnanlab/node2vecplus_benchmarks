@@ -1,4 +1,5 @@
 # Node2vec+ Benchmarks
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.7573612.svg)](https://doi.org/10.5281/zenodo.7573612)
 
 This repository contains data and scripts for reproducing evaluation results presented in 
 [*Accurately modeling biased random walks on weighted networks using node2vec+*](https://www.biorxiv.org/content/early/2022/08/15/2022.08.14.503926).
